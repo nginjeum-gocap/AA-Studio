@@ -77,8 +77,19 @@
   </div>
 
   <div class="modal-action-buttons">
-    <button class="btn-thanks-top btn-rainbow-glow" id="closeBtnTop">👍 Okeh, Terima Kasih!</button>
-    <button class="btn-maybe-bottom" id="closeBtnBottom" onclick="window.location.href='index2.html'">🚶‍♂️ Mungkin lain kali</button>
+    <button class="btn-thanks-top btn-rainbow-glow" id="closeBtnTop" onclick="sessionStorage.setItem('popupShowed', 'true');">👍 Okeh, Terima Kasih!</button>
+    
+    <button class="btn-maybe-bottom" id="closeBtnBottom" onclick="sessionStorage.setItem('popupShowed', 'true'); window.location.href='index2.html'">🚶‍♂️ Mungkin lain kali</button>
   </div>
 
 </div>
+
+<script>
+  if (sessionStorage.getItem('popupShowed') === 'true') {
+    const overlay = document.getElementById('welcomeModal');
+    if (overlay) {
+      overlay.classList.remove('show');
+      overlay.style.display = 'none';
+    }
+  }
+</script>
