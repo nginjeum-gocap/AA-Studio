@@ -248,33 +248,38 @@
     }, 5000);
 
     /* ==========================================
-       PENGORBITAN POP-UP LEWAT SERVER / FILE TERPISAH
+       PENGORBITAN POP-UP LEWAT SERVER (FIXED JAVASCRIPT)
        ========================================== */
     const welcomeModal = document.getElementById('welcomeModal');
 
-    // Mengambil isi kode kotak popup dari folder popup.html secara gaib
     fetch('popup.html')
       .then(response => {
         if (!response.ok) throw new Error('File popup.html belum ada / gagal load');
         return response.text();
       })
       .then(htmlKonten => {
-        // Masukin kodenya ke beranda
         welcomeModal.innerHTML = htmlKonten;
 
-        // Pasang sensor klik tombol penutup
         const closeBtnTop = document.getElementById('closeBtnTop');
         const closeBtnBottom = document.getElementById('closeBtnBottom');
         const closeModal = () => welcomeModal.classList.remove('show');
 
-        if(closeBtnTop) closeBtnTop.addEventListener('click', closeModal);
-        if(closeBtnBottom) closeBtnBottom.addEventListener('click', closeModal);
+        // Sensor klik tombol Atas (Terima kasih)
+        if (closeBtnTop) {
+          closeBtnTop.addEventListener('click', closeModal);
+        }
+
+        // Sensor klik tombol Bawah (Mungkin lain kali) -> Tendang ke index2.html
+        if (closeBtnBottom) {
+          closeBtnBottom.addEventListener('click', () => {
+            window.location.href = 'index2.html';
+          });
+        }
         
         welcomeModal.addEventListener('click', (e) => {
           if (e.target === welcomeModal) closeModal();
         });
 
-        // Tampilkan pop-up nya secara mulus
         welcomeModal.classList.add('show');
       })
       .catch(err => console.log("Info Pop-up:", err.message));
