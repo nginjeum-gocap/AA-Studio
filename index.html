@@ -12,24 +12,11 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
-    /* BACKGROUND UTAMA: EFEK LANGIT MALAM BINTANG BERKEDIP */
+    /* BACKGROUND UTAMA: MINIMALIS DARK GRADIENT (BERSIH & ESTETIK) */
     body {
       background-color: #0b0c10;
-      background-image: 
-        radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px),
-        radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px),
-        radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 40px);
-      background-size: 550px 550px, 350px 350px, 250px 250px;
-      background-position: 0 0, 40px 60px, 130px 270px;
-      animation: bintangKelapKelip 8s linear infinite;
       color: #ffffff;
       overflow-x: hidden;
-    }
-
-    @keyframes bintangKelapKelip {
-      0% { opacity: 0.8; }
-      50% { opacity: 1; filter: brightness(1.3); }
-      100% { opacity: 0.8; }
     }
 
     /* NAVBAR UTAMA */
@@ -154,6 +141,7 @@
       align-items: center;
       text-align: center;
       padding: 20px;
+      background: radial-gradient(circle, #1f2833 0%, #0b0c10 100%);
     }
     .hero-content { max-width: 600px; }
     .hero-content h1 { font-size: 2.3rem; margin-bottom: 15px; }
@@ -164,7 +152,7 @@
     .btn-secondary { border: 2px solid #66fcf1; color: #66fcf1; padding: 12px 24px; border-radius: 25px; text-decoration: none; font-weight: bold; transition: 0.3s; }
     .btn-primary:hover, .btn-secondary:hover { transform: translateY(-2px); }
 
-    /* MODAL OVERLAY (DIKUNCI / BACKGROUND GELAP) */
+    /* MODAL OVERLAY (BACKGROUND GELAP FOKUS) */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0;
@@ -281,8 +269,6 @@
             window.location.href = 'index2.html';
           });
         }
-        
-        // CATATAN: Fungsi klik luar sengaja dihapus total biar user FOKUS milih tombol!
 
         welcomeModal.classList.add('show');
       })
