@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Simulasi E-Wallet - Edukasi</title>
+  <title>Simulasi E-Wallet - Input Nominal</title>
   <style>
     body {
       background-color: #0b0c10;
@@ -12,8 +12,9 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
       margin: 0;
+      padding: 20px;
     }
     .wallet-card {
       background-color: #1f2833;
@@ -22,7 +23,8 @@
       padding: 30px;
       text-align: center;
       box-shadow: 0 0 20px rgba(102, 252, 241, 0.2);
-      width: 300px;
+      width: 100%;
+      max-width: 360px;
     }
     .balance-title {
       font-size: 0.9rem;
@@ -36,24 +38,68 @@
       color: #66fcf1;
       margin: 15px 0;
     }
-    .btn-group {
+    .section-title {
+      font-size: 0.8rem;
+      color: #45f3ff;
+      margin: 20px 0 10px 0;
+      text-align: left;
+      border-bottom: 1px solid rgba(102, 252, 241, 0.2);
+      padding-bottom: 5px;
+    }
+    .btn-main-group {
       display: flex;
       gap: 10px;
       justify-content: center;
+      margin-bottom: 15px;
     }
-    .btn-action {
-      background-color: transparent;
-      border: 1px solid #66fcf1;
-      color: #66fcf1;
-      padding: 10px 15px;
+    .btn-main {
+      flex: 1;
+      background-color: #66fcf1;
+      color: #0b0c10;
+      border: none;
+      padding: 12px;
       border-radius: 8px;
       cursor: pointer;
       font-weight: bold;
       transition: all 0.3s;
     }
-    .btn-action:hover {
-      background-color: #66fcf1;
-      color: #0b0c10;
+    .btn-main:hover {
+      background-color: #45f3ff;
+      box-shadow: 0 0 10px rgba(102, 252, 241, 0.5);
+    }
+    .btn-danger {
+      background-color: transparent;
+      border: 1px solid #ff4d4d;
+      color: #ff4d4d;
+    }
+    .btn-danger:hover {
+      background-color: #ff4d4d;
+      color: white;
+      box-shadow: 0 0 10px rgba(255, 77, 77, 0.5);
+    }
+    /* Grid untuk 5-6 tombol instan pilihan */
+    .instant-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .instant-grid button:last-child {
+      grid-column: span 2; /* Biar tombol ke-5 posisinya penuh di bawah */
+    }
+    .btn-instant {
+      background-color: rgba(255,255,255,0.05);
+      border: 1px solid rgba(102, 252, 241, 0.3);
+      color: #c5c6c7;
+      padding: 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+    .btn-instant:hover {
+      border-color: #66fcf1;
+      color: #66fcf1;
+      background-color: rgba(102, 252, 241, 0.1);
     }
   </style>
 </head>
@@ -63,55 +109,95 @@
     <div class="balance-title">Saldo Virtual Anda</div>
     <div class="balance-amount" id="displaySaldo">Rp 0</div>
     
-    <div class="btn-group">
-      <button class="btn-action" id="btnTambah">Simulasi Top Up</button>
-      <button class="btn-action" id="btnKurang">Simulasi Belanja</button>
+    <div class="btn-main-group">
+      <button class="btn-main" id="btnTopUpManual">Top Up Manual</button>
+      <button class="btn-main btn-danger" id="btnKurang">Belanja</button>
     </div>
+
+    <div class="section-title">Pilihan Instan (5 Opsi)</div>
+    <div class="instant-grid" id="areaTombolInstan"></div>
   </div>
 
   <script>
-    // 1. Deklarasi elemen HTML yang akan dimanipulasi
     const displaySaldo = document.getElementById('displaySaldo');
-    const btnTambah = document.getElementById('btnTambah');
+    const btnTopUpManual = document.getElementById('btnTopUpManual');
     const btnKurang = document.getElementById('btnKurang');
+    const areaTombolInstan = document.getElementById('areaTombolInstan');
 
-    // 2. FUNGSI UTAMA: Mengambil saldo dari Local Storage browser
+    // EDUKASI ARRAY: Menyimpan 5 data nominal input bebas untuk tombol cepat
+    const daftarNominal = [20000, 50000, 100000, 200000, 500000];
+
+    // 1. Ambil saldo dari penyimpanan lokal browser
     function dapatkanSaldoSistem() {
       const saldoLokal = localStorage.getItem('saldoUser');
-      // Jika belum ada data (null), kembalikan nilai 0. Jika ada, ubah teks string menjadi angka (Integer)
       return saldoLokal ? parseInt(saldoLokal) : 0;
     }
 
-    // 3. FUNGSI UTAMA: Memperbarui tampilan layar dengan format mata uang rupiah
+    // 2. Format mata uang rupiah agar rapi dilihat
     function updateTampilanLayar(jumlahSaldo) {
       displaySaldo.textContent = "Rp " + jumlahSaldo.toLocaleString('id-ID');
     }
 
-    // 4. LOGIKA AWAL: Jalankan fungsi saat halaman pertama kali dibuka
     let saldoAktif = dapatkanSaldoSistem();
     updateTampilanLayar(saldoAktif);
 
-    // 5. EVENT LISTENER: Aksi ketika tombol "Simulasi Top Up" diklik
-    btnTambah.addEventListener('click', () => {
-      // Tambah saldo aktif sebesar 10.000
-      saldoAktif += 10000;
-      
-      // Simpan nilai baru ke dalam Local Storage
+    // 3. FUNGSI EKSEKUSI: Menambah saldo & simpan ke storage
+    function prosesTambahSaldo(nominalTambah) {
+      saldoAktif += nominalTambah;
       localStorage.setItem('saldoUser', saldoAktif);
-      
-      // Perbarui angka yang dilihat user di layar
       updateTampilanLayar(saldoAktif);
+    }
+
+    // 4. GENERATE TOMBOL INSTAN (Looping data dari array untuk membuat 5 tombol otomatis)
+    daftarNominal.forEach((nominal) => {
+      const tombol = document.createElement('button');
+      tombol.className = 'btn-instant';
+      tombol.textContent = "+ Rp " + nominal.toLocaleString('id-ID');
+      
+      // Ketika salah satu dari 5 tombol instan diklik
+      tombol.addEventListener('click', () => {
+        prosesTambahSaldo(nominal);
+      });
+      
+      areaTombolInstan.appendChild(tombol);
     });
 
-    // 6. EVENT LISTENER: Aksi ketika tombol "Simulasi Belanja" diklik
+    // 5. EVENT: Klik Top Up Manual (Memunculkan popup kotak input angka bebas)
+    btnTopUpManual.addEventListener('click', () => {
+      // Prompt memunculkan kotak teks pengisian di browser
+      let inputUser = prompt("Masukkan nominal Rupiah yang ingin di Top Up:", "50000");
+      
+      // Validasi 1: Memastikan user tidak menekan tombol 'Cancel'
+      if (inputUser !== null) {
+        // Mengubah string teks inputan menjadi tipe data Angka murni
+        let nominalInput = parseInt(inputUser.replace(/\D/g, '')); 
+
+        // Validasi 2: Memastikan nilai yang dimasukkan adalah angka valid dan di atas 0
+        if (!isNaN(nominalInput) && nominalInput > 0) {
+          prosesTambahSaldo(nominalInput);
+        } else {
+          alert("Gagal: Harap masukkan nominal angka yang benar!");
+        }
+      }
+    });
+
+    // 6. EVENT: Klik Belanja (Pengurangan Saldo)
     btnKurang.addEventListener('click', () => {
-      // Validasi: Cek apakah saldo cukup untuk dikurangi
-      if (saldoAktif >= 5000) {
-        saldoAktif -= 5000;
-        localStorage.setItem('saldoUser', saldoAktif);
-        updateTampilanLayar(saldoAktif);
-      } else {
-        alert("Simulasi Gagal: Saldo virtual tidak mencukupi!");
+      let inputBelanja = prompt("Masukkan nominal belanja Anda:", "25000");
+      if (inputBelanja !== null) {
+        let nominalBelanja = parseInt(inputBelanja.replace(/\D/g, ''));
+
+        if (!isNaN(nominalBelanja) && nominalBelanja > 0) {
+          if (saldoAktif >= nominalBelanja) {
+            saldoAktif -= nominalBelanja;
+            localStorage.setItem('saldoUser', saldoAktif);
+            updateTampilanLayar(saldoAktif);
+          } else {
+            alert("Gagal: Saldo virtual Anda tidak mencukupi untuk belanja sebesar ini!");
+          }
+        } else {
+          alert("Gagal: Nominal belanja tidak valid!");
+        }
       }
     });
   </script>
