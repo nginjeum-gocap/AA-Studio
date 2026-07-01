@@ -1,45 +1,46 @@
 /* =======================================================
-   FINAL COMBINED PERFECT: NEVBAR.CSS 
+   FINAL COMBINED PERFECT: NEVBAR.CSS (LOCK VERTICAL POSITION)
    ======================================================= */
 
-/* Wadah Utama Logo V Kembar (Dikunci agar menumpuk pas di tengah) */
-.logo-vv-container {
+/* Wadah Utama Logo AA Kembar */
+.navbar .logo-aa-container {
   position: relative;
-  width: 30px;   
-  height: 35px;  
+  width: 32px;        
+  height: 32px;       
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 15px;
+  margin-right: 12px; 
   flex-shrink: 0;
 }
 
-/* Karakter Huruf V Dasar */
-.char-v {
-  font-size: 26px;
+/* Karakter Huruf A Dasar (Wajib Absolute) */
+.navbar .logo-aa-container .char-a {
+  font-size: 30px;    
   font-weight: bold;
   font-family: 'Times New Roman', Times, serif;
-  position: absolute;
+  position: absolute; 
   line-height: 1;
   opacity: 0;
+  top: 50%;
+  left: 50%;
 }
 
-/* V PUTIH (TERBALIK) -> MASUK DARI BAWAH KE ATAS, KELUAR LANJUT KE ATAS */
-.v-flipped {
+/* A PUTIH (NORMAL) -> Dipastikan Menumpuk di Atas */
+.a-normal {
   color: #ffffff;
-  top: 2px;
-  transform: rotate(180deg);
-  animation: logoPutihLoop 8s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+  z-index: 2; /* Mengunci lapisan putih di paling depan */
+  animation: logoANormalLoop 8s cubic-bezier(0.25, 1, 0.5, 1) infinite;
 }
 
-/* V KUNING (NORMAL) -> MASUK DARI ATAS KE BAWAH, KELUAR LANJUT KE BAWAH */
-.v-normal {
+/* A KUNING (TERBALIK & DI-MIRROR) -> Berada di Lapisan Bawah */
+.a-flipped {
   color: #d4af37;
-  bottom: 2px;
-  animation: logoKuningLoop 8s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+  z-index: 1; /* Di bawah lapisan putih */
+  animation: logoAFlippedLoop 8s cubic-bezier(0.25, 1, 0.5, 1) infinite;
 }
 
-/* CONTAINER TEKS BARISAN */
+/* CONTAINER TEKS BARISAN (TIDAK DIUTAK-ATIK) */
 .text-wrapper {
   display: flex;
   flex-direction: column;
@@ -61,11 +62,11 @@
   animation-delay: 0.4s;
 }
 
-/* SPAN KHUSUS HURUF A (FIX TOTAL: FONT-FAMILY & KETEBALAN SAMA RATA) */
+/* SPAN KHUSUS HURUF A */
 .gold-a {
   color: #d4af37;
-  font-family: 'Orbitron', sans-serif; /* Mengunci bentuk font agar identik dengan huruf sebelahnya */
-  font-weight: bold;                  /* Mengunci ketebalan fisik agar seimbang dan rata */
+  font-family: 'Orbitron', sans-serif; 
+  font-weight: bold;                  
   text-shadow: 
     0 0 5px #d4af37, 
     0 0 10px #d4af37, 
@@ -74,7 +75,7 @@
   animation: goldGlowPulse 2s infinite alternate;
 }
 
-/* BARIS BAWAH: STUDIO (WARNA PELANGI BERGERAK) */
+/* BARIS BAWAH: STUDIO */
 .logo-text-bottom {
   font-family: 'Orbitron', sans-serif;
   font-size: 11px;
@@ -120,42 +121,31 @@
    LOGIKA TIMELINE & ANIMASI KEYFRAMES
    ======================================================= */
 
-/* V PUTIH: Dari Bawah (Y: 25px) -> Stay di Tengah (Y: 0) -> Keluar ke Atas (Y: -25px) */
-@keyframes logoPutihLoop {
-  0% { opacity: 0; transform: translateY(25px) rotate(180deg) scale(0.7); }
-  12%, 75% { opacity: 1; transform: translateY(0) rotate(180deg) scale(1); }
-  88%, 100% { opacity: 0; transform: translateY(-25px) rotate(180deg) scale(0.7); }
+/* A NORMAL: Pas diam posisi Y digeser ke -54% (artinya naik sedikit ke atas) */
+@keyframes logoANormalLoop {
+  0% { opacity: 0; transform: translate(-50%, calc(-54% + 15px)) scale(0.8); }
+  12%, 75% { opacity: 1; transform: translate(-50%, -54%) scale(1); }
+  88%, 100% { opacity: 0; transform: translate(-50%, calc(-54% - 15px)) scale(0.8); }
 }
 
-/* V KUNING: Dari Atas (Y: -25px) -> Stay di Tengah (Y: 0) -> Keluar ke Bawah (Y: 25px) */
-@keyframes logoKuningLoop {
-  0% { opacity: 0; transform: translateY(-25px) scale(0.7); }
-  12%, 75% { opacity: 1; transform: translateY(0) scale(1); }
-  88%, 100% { opacity: 0; transform: translateY(25px) scale(0.7); }
+/* A TERBALIK: Pas diam posisi Y digeser ke -44% (artinya turun sedikit ke bawah) */
+@keyframes logoAFlippedLoop {
+  0% { opacity: 0; transform: translate(-50%, calc(-44% - 15px)) rotate(180deg) scaleX(-1) scale(0.8); }
+  12%, 75% { opacity: 1; transform: translate(-50%, -44%) rotate(180deg) scaleX(-1) scale(1); }
+  88%, 100% { opacity: 0; transform: translate(-50%, calc(-44% + 15px)) rotate(180deg) scaleX(-1) scale(0.8); }
 }
 
-/* TEKS TIMELINE: Sinkron Masuk-Keluar */
+/* TEKS TIMELINE */
 @keyframes textInOutLoop {
   0% { opacity: 0; transform: translateX(-15px); }
   12%, 75% { opacity: 1; transform: translateX(0); }
   88%, 100% { opacity: 0; transform: translateX(-15px); }
 }
 
-/* KEDIPAN CAHAYA HURUF A (BOOSTING MAKSIMAL) */
+/* KEDIPAN CAHAYA HURUF A */
 @keyframes goldGlowPulse {
-  from { 
-    text-shadow: 
-      0 0 4px #d4af37, 
-      0 0 8px #d4af37, 
-      0 0 15px rgba(212, 175, 55, 0.6); 
-  }
-  to { 
-    text-shadow: 
-      0 0 8px #d4af37, 
-      0 0 15px #d4af37, 
-      0 0 25px #d4af37, 
-      0 0 40px rgba(212, 175, 55, 1); 
-  }
+  from { text-shadow: 0 0 4px #d4af37, 0 0 8px #d4af37, 0 0 15px rgba(212, 175, 55, 0.6); }
+  to { text-shadow: 0 0 8px #d4af37, 0 0 15px #d4af37, 0 0 25px #d4af37, 0 0 40px rgba(212, 175, 55, 1); }
 }
 
 /* Aliran Warna Pelangi STUDIO */
@@ -164,7 +154,7 @@
   100% { background-position: 300% 50%; }
 }
 
-/* Efek Sapuan Cahaya Biru-Putih */
+/* Efek Sapuan Cahaya */
 @keyframes glowSweepLoop {
   0%, 35% { background-position: 150% 0; }
   50%, 65% { background-position: -50% 0; }
