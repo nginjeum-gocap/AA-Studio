@@ -302,8 +302,8 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-    // Ditambahkan getFirestore untuk melakukan deteksi database langsung
+    // MENGGUNAKAN signInWithRedirect dan getRedirectResult BIAR ANTI-EROR DI MOBILE
+    import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
     import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -318,27 +318,57 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app); // Inisialisasi database firestore
+    const db = getFirestore(app);
     const provider = new GoogleAuthProvider();
 
+    // =========================================================================
+    // BARU: OTOMATIS CEK HASIL REDIRECT KETIKA HALAMAN KEMBALI DARI GOOGLE
+    // =========================================================================
+    getRedirectResult(auth)
+      .then(async (result) => {
+        if (result && result.user) {
+          const emailValue = result.user.email;
+
+          // Jalankan pengecekan ke database Firestore 'users'
+          const q = query(collection(db, "users"), where("email", "==", emailValue.toLowerCase()));
+          const querySnapshot = await getDocs(q);
+
+          if (querySnapshot.empty) {
+            // BELUM DAFTAR -> LEMPAR KE REGISTRASI
+            alert("Akun Google belum terdaftar! Silahkan lakukan registrasi terlebih dahulu.");
+            sessionStorage.clear();
+            window.location.href = "registrasi.html";
+          } else {
+            // SUDAH DAFTAR -> LANJUT MASUK
+            sessionStorage.removeItem("tempPassword");
+            sessionStorage.removeItem("passwordStatus");
+            sessionStorage.setItem("tempEmail", emailValue);
+            sessionStorage.setItem("loginMethod", "google");
+
+            window.location.href = "validation.html";
+          }
+        }
+      })
+      .catch((error) => {
+        console.error("Redirect Auth Error:", error.message);
+        alert("Gagal memproses login Google: " + error.message);
+      });
+
+    // =========================================================================
+    // MEMPERTAHANKAN DATA KOLOM
+    // =========================================================================
     const emailField = document.getElementById("username");
     const passwordInput = document.getElementById('password');
 
-    // =========================================================================
-    // UPDATE: FITUR SAVING DATA DISEMPURNAKAN DENGAN FILTER SPESIFIK
-    // =========================================================================
     const savedEmail = sessionStorage.getItem("tempEmail");
     const savedPassword = sessionStorage.getItem("tempPassword");
     const passwordStatus = sessionStorage.getItem("passwordStatus");
 
-    // Pertahankan email lama
     if (savedEmail && emailField) {
       emailField.value = savedEmail;
     }
     
-    // Logika Cerdas Penyaringan Password:
     if (passwordStatus === "wrong") {
-      // Jika terbukti password salah, hilangkan password dari kolom dan session
       sessionStorage.removeItem("tempPassword");
       if (passwordInput) passwordInput.value = "";
     } else {
@@ -359,7 +389,7 @@
       }
     });
 
-    // 2. SISTEM SUBMIT LOGIN MANUAL (EMAIL & PW)
+    // 2. SISTEM SUBMIT LOGIN MANUAL
     document.getElementById('loginForm').addEventListener('submit', (e) => {
       e.preventDefault();
 
@@ -367,7 +397,6 @@
       const passwordValue = passwordInput.value;
       
       sessionStorage.removeItem("passwordStatus");
-
       sessionStorage.setItem("tempEmail", emailValue);
       sessionStorage.setItem("tempPassword", passwordValue);
       sessionStorage.setItem("loginMethod", "email_password");
@@ -375,36 +404,11 @@
       window.location.href = "validation.html";
     });
 
-    // 3. LOGIKA BUTTON LOGIN GOOGLE + DETEKSI PENDAFTARAN
+    // 3. LOGIKA TOMBOL GOOGLE AUTH (MENGGUNAKAN REDIRECT)
     const btnGoogle = document.getElementById('btnGoogle');
     btnGoogle.addEventListener('click', () => {
-      signInWithPopup(auth, provider)
-        .then(async (result) => {
-          const emailValue = result.user.email;
-
-          // Jalankan pengecekan cepat ke Firestore: Apakah email ini ada di database?
-          const q = query(collection(db, "users"), where("email", "==", emailValue.toLowerCase()));
-          const querySnapshot = await getDocs(q);
-
-          if (querySnapshot.empty) {
-            // JIKA TIDAK ADA DATA SAMA SEKALI, TENDANG KE REGISTRASI
-            alert("Akun Google belum terdaftar! Silahkan lakukan registrasi terlebih dahulu.");
-            sessionStorage.clear();
-            window.location.href = "registrasi.html";
-          } else {
-            // JIKA TERDAFTAR, LANJUTKAN PROSES KE HALAMAN VALIDASI/POPUP
-            sessionStorage.removeItem("tempPassword");
-            sessionStorage.removeItem("passwordStatus");
-            sessionStorage.setItem("tempEmail", emailValue);
-            sessionStorage.setItem("loginMethod", "google");
-
-            window.location.href = "validation.html";
-          }
-        })
-        .catch((error) => {
-          console.error("Google Auth Error:", error.message);
-          alert("Gagal Inisiasi Google Login! Error: " + error.message);
-        });
+      // Mengalihkan penuh halaman biar tidak diblokir sistem mobile popup
+      signInWithRedirect(auth, provider);
     });
 
     // 4. SISTEM NAVBAR DROPDOWN
@@ -422,4 +426,5 @@
     });
   </script>
 </body>
-</html>
+  </html>
+  
