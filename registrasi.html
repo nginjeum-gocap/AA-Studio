@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login - All Animation Studio</title>
+  <title>Register - All Animation Studio</title>
   
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
   
@@ -91,13 +91,13 @@
     .dropdown-menu a { display: block; color: white; padding: 14px 20px; text-decoration: none; font-size: 0.95rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.3s; cursor: pointer; }
     .dropdown-menu a:hover { background-color: rgba(102, 252, 241, 0.08); color: #66fcf1; padding-left: 26px; }
 
-    /* HERO LAYAR UTAMA */
+    /* HERO WRAPPER FORM */
     .hero-wrapper {
-      height: calc(100vh - 70px); 
+      min-height: calc(100vh - 70px); 
       display: flex;
       justify-content: center;
       align-items: center;
-      padding: 20px;
+      padding: 40px 20px;
       background: radial-gradient(circle at center, #0d1117 0%, #050608 100%);
     }
 
@@ -116,7 +116,7 @@
       text-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
     }
 
-    /* Input Neon Modern */
+    /* Opsi Input Neon Modern */
     .custom-input-box {
       width: 100%;
       position: relative;
@@ -164,7 +164,7 @@
       font-size: 10px;
     }
 
-    /* TOMBOL MATA INTIP PW */
+    /* TOMBOL INTIP PASSWORD (EYE TOGGLE) */
     .toggle-password-btn {
       position: absolute;
       right: 15px;
@@ -177,10 +177,13 @@
       font-size: 16px;
       padding: 4px;
       outline: none;
+      transition: color 0.3s ease;
       z-index: 10;
-      user-select: none;
     }
-    .toggle-password-btn:hover { color: #66fcf1; }
+
+    .toggle-password-btn:hover {
+      color: #66fcf1;
+    }
 
     /* Tombol Sign-In Efek Aliran Pelangi */
     .btn-submit-rainbow {
@@ -205,35 +208,12 @@
       box-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
     }
 
-    /* STYLE TOMBOL GOOGLE LOGIN */
-    .btn-google-signin {
-      width: 100%;
-      padding: 14px;
-      margin-top: 15px;
-      background-color: #1a1e29;
-      color: #ffffff;
-      border: 1px solid rgba(102, 252, 241, 0.3);
-      border-radius: 8px;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 12px;
-      font-weight: bold;
-      letter-spacing: 1.5px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      transition: all 0.3s ease;
-    }
-
-    .btn-google-signin img { width: 18px; height: 18px; }
-
     @keyframes rainbowBtnShift {
       0% { background-position: 0% 50%; }
       100% { background-position: 300% 50%; }
     }
 
-    .register-home-link {
+    .back-login-link {
       display: inline-block;
       margin-top: 25px;
       color: rgba(255, 255, 255, 0.3);
@@ -244,7 +224,9 @@
       transition: color 0.3s ease;
     }
 
-    .register-home-link:hover { color: #66fcf1; }
+    .back-login-link:hover {
+      color: #66fcf1;
+    }
   </style>
 </head>
 <body>
@@ -266,43 +248,81 @@
 
     <div class="menu-toggle" id="menuBtn"><span></span><span></span><span></span></div>
     <div class="dropdown-menu" id="dropdownMenu">
-      <a href="index.html">🏠 Beranda</a>
+      <a href="index">🏠 Beranda</a>
       <a href="Animasi Studio/studio">🎬 Animasi Studio</a>
-      <a href="registrasi.html">🆕 Register</a> 
+      <a href="Login.html">🔙 Login</a> 
     </div>
   </header>
 
   <section class="hero-wrapper">
     <div class="login-form-wrapper">
-      <h2 class="login-title">USER LOGIN</h2>
+      <h2 class="login-title">USER REGISTER</h2>
 
-      <form id="loginForm">
+      <form id="registerForm">
         <div class="custom-input-box">
-          <input type="email" id="username" placeholder=" " required autocomplete="off">
-          <label for="username">EMAIL ADDRESS</label>
+          <input type="text" id="username" placeholder=" " required autocomplete="off">
+          <label for="username">USERNAME</label>
+        </div>
+
+        <div class="custom-input-box">
+          <input type="email" id="email" placeholder=" " required autocomplete="off">
+          <label for="email">EMAIL ADDRESS</label>
         </div>
 
         <div class="custom-input-box">
           <input type="password" id="password" placeholder=" " required>
           <label for="password">PASSWORD</label>
-          <button type="button" class="toggle-password-btn" id="togglePassword">👁️</button>
+          <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('password', this)">👁️</button>
         </div>
 
-        <button type="submit" class="btn-submit-rainbow">Login</button>
-        
-        <button type="button" class="btn-google-signin" id="btnGoogle">
-          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google Logo">
-          MASUK DENGAN GOOGLE
-        </button>
+        <div class="custom-input-box">
+          <input type="password" id="confirmPassword" placeholder=" " required>
+          <label for="confirmPassword">CONFIRM PASSWORD</label>
+          <button type="button" class="toggle-password-btn" onclick="togglePasswordVisibility('confirmPassword', this)">👁️</button>
+        </div>
+
+        <button type="submit" class="btn-submit-rainbow">Register</button>
       </form>
 
-      <a href="registrasi.html" class="register-home-link">register your account</a>
+      <a href="Login.html" class="back-login-link">already have an account? login</a>
     </div>
   </section>
 
   <script type="module">
+    // 1. KONTROL TAMPILAN NAVBAR DROPDOWN
+    const menuBtn = document.getElementById('menuBtn');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+
+    menuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdownMenu.classList.toggle('active');
+      menuBtn.classList.toggle('active-btn');
+    });
+
+    document.addEventListener('click', () => {
+      dropdownMenu.classList.remove('active');
+      menuBtn.classList.remove('active-btn');
+    });
+
+    // 2. GLOBAL FUNCTION UNTUK MENGINTIP PASSWORD
+    window.togglePasswordVisibility = function(inputId, buttonEl) {
+      const inputField = document.getElementById(inputId);
+      if (inputField && inputField.type === "password") {
+        inputField.type = "text";
+        buttonEl.textContent = "🔒";
+      } else if (inputField) {
+        inputField.type = "password";
+        buttonEl.textContent = "👁️";
+      }
+    }
+
+    // =========================================================================
+    // 3. CORE SYSTEM GOOGLE FIREBASE SDK v12.15.0
+    // =========================================================================
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-analytics.js";
+    import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDMyCH_S50p0G9J_Fdq9MEMnNXXfXCeEcE",
@@ -314,99 +334,57 @@
       measurementId: "G-T99JHNM9HB"
     };
 
+    // Inisialisasi Firebase Core App
     const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+
+    // Mengunci auth & db langsung ke variabel 'app' proyek Anda (Mencegah error 400)
     const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
-
-    const emailField = document.getElementById("username");
-    const passwordInput = document.getElementById('password');
+    const db = getFirestore(app);
 
     // =========================================================================
-    // UPDATE: FITUR SAVING DATA DISEMPURNAKAN DENGAN FILTER SPESIFIK
+    // 4. LOGIKA PROSES PENDAFTARAN & PENGIRIMAN DATA KE SERVER FIRESTORE
     // =========================================================================
-    const savedEmail = sessionStorage.getItem("tempEmail");
-    const savedPassword = sessionStorage.getItem("tempPassword");
-    const passwordStatus = sessionStorage.getItem("passwordStatus");
-
-    // Pertahankan email lama
-    if (savedEmail && emailField) {
-      emailField.value = savedEmail;
-    }
-    
-    // Logika Cerdas Penyaringan Password:
-    if (passwordStatus === "wrong") {
-      // Jika terbukti password salah, hilangkan password dari kolom dan session
-      sessionStorage.removeItem("tempPassword");
-      if (passwordInput) passwordInput.value = "";
-    } else {
-      // Jika statusnya "correct" (seperti di kasus screenshot lu di mana pw sesuai tapi email salah)
-      // ATAU jika status kosong (percobaan pertama), data password tetap dipertahankan aman di kolom!
-      if (savedPassword && passwordInput) {
-        passwordInput.value = savedPassword;
-      }
-    }
-
-    // 1. LOGIKA TOMBOL MATA INTIP PASSWORD
-    const togglePasswordBtn = document.getElementById('togglePassword');
-    togglePasswordBtn.addEventListener('click', () => {
-      if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        togglePasswordBtn.textContent = '🔒';
-      } else {
-        passwordInput.type = 'password';
-        togglePasswordBtn.textContent = '👁️';
-      }
-    });
-
-    // 2. SISTEM SUBMIT LOGIN
-    document.getElementById('loginForm').addEventListener('submit', (e) => {
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
       e.preventDefault();
 
-      const emailValue = emailField.value.trim();
-      const passwordValue = passwordInput.value;
-      
-      // Reset status validasi password sebelum melempar data baru
-      sessionStorage.removeItem("passwordStatus");
+      const usernameInput = document.getElementById('username').value.trim();
+      const emailInput = document.getElementById('email').value.trim();
+      const passwordInput = document.getElementById('password').value;
+      const confirmPasswordInput = document.getElementById('confirmPassword').value;
 
-      sessionStorage.setItem("tempEmail", emailValue);
-      sessionStorage.setItem("tempPassword", passwordValue);
-      sessionStorage.setItem("loginMethod", "email_password");
+      if (passwordInput !== confirmPasswordInput) {
+        alert("Gagal daftar, cok! Password lu kaga cocok.");
+        return;
+      }
 
-      window.location.href = "validation.html";
-    });
+      try {
+        // 1. Daftarkan email & password ke Firebase Auth
+        const userCredential = await createUserWithEmailAndPassword(auth, emailInput, passwordInput);
+        const user = userCredential.user;
 
-    // 3. LOGIKA BUTTON LOGIN GOOGLE
-    const btnGoogle = document.getElementById('btnGoogle');
-    btnGoogle.addEventListener('click', () => {
-      signInWithPopup(auth, provider)
-        .then((result) => {
-          const emailValue = result.user.email;
-          
-          sessionStorage.removeItem("tempPassword");
-          sessionStorage.removeItem("passwordStatus");
-          sessionStorage.setItem("tempEmail", emailValue);
-          sessionStorage.setItem("loginMethod", "google");
+        // 2. Kirim Link Verifikasi Resmi dari Sistem Google ke Email User
+        await sendEmailVerification(user);
 
-          window.location.href = "validation.html";
-        })
-        .catch((error) => {
-          console.error("Google Auth Error:", error.message);
-          alert("Gagal Inisiasi Google Login! Error: " + error.message);
+        // 3. Format Penanggalan Lokal WIB Terstruktur Indonesia
+        const opsiTanggal = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        const tanggalRegistrasi = new Date().toLocaleDateString('id-ID', opsiTanggal) + ' WIB';
+
+        // 4. Simpan data profil lengkap ke Database Firestore
+        await setDoc(doc(db, "users", user.uid), {
+          username: usernameInput,
+          email: emailInput,
+          status: "Aktif",
+          tanggalDaftar: tanggalRegistrasi
         });
-    });
 
-    // 4. SISTEM NAVBAR DROPDOWN
-    const menuBtn = document.getElementById('menuBtn');
-    const dropdownMenu = document.getElementById('dropdownMenu');
-    menuBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      dropdownMenu.classList.toggle('active');
-      menuBtn.classList.toggle('active-btn');
-    });
+        alert("Registrasi sukses, cok! Link verifikasi resmi telah dikirim ke email Anda. Silakan verifikasi dahulu sebelum login.");
+        window.location.href = "Login.html";
 
-    document.addEventListener('click', () => {
-      dropdownMenu.classList.remove('active');
-      menuBtn.classList.remove('active-btn');
+      } catch (error) {
+        console.error("Firebase Auth Error: ", error);
+        alert("Gagal daftar, cok! Error: " + error.message);
+      }
     });
   </script>
 </body>

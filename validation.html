@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Access Validation - All Animation Studio</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #050608; height: 100vh;
+      display: flex; justify-content: center; align-items: center; overflow: hidden;
+    }
+
+    .popup-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(5, 6, 8, 0.9); backdrop-filter: blur(12px);
+      display: flex; justify-content: center; align-items: center; z-index: 9999;
+    }
+
+    .popup-box {
+      background: linear-gradient(90deg, #ff0055, #00ffcc, #9900ff, #ffcc00, #ff0055);
+      background-size: 300% 100%; animation: rainbowMove 6s linear infinite;
+      border-radius: 16px; width: 92%; max-width: 460px; padding: 2px; 
+      box-shadow: 0 0 35px rgba(0, 255, 204, 0.2);
+    }
+
+    .popup-inner {
+      background: rgba(18, 20, 28, 0.95); border-radius: 14px;
+      padding: 40px 30px; text-align: center; width: 100%; height: 100%;
+    }
+
+    .popup-logo-area {
+      display: flex !important; justify-content: center !important;
+      align-items: center !important; gap: 15px !important;
+      margin-bottom: 30px !important; width: 100% !important;
+    }
+
+    .popup-logo-area .logo-aa-container {
+      position: relative !important; width: 40px !important; height: 40px !important;       
+      display: flex !important; align-items: center !important;
+      justify-content: center !important; flex-shrink: 0 !important;
+    }
+
+    .popup-logo-area .logo-aa-container .char-a {
+      font-size: 36px !important; font-weight: bold !important;
+      font-family: 'Times New Roman', Times, serif !important;
+      position: absolute !important; line-height: 1 !important;
+      top: 50% !important; left: 50% !important;
+    }
+
+    .popup-logo-area .a-normal {
+      color: #ffffff !important; z-index: 2 !important; 
+      animation: logoANormalLoop 8s cubic-bezier(0.25, 1, 0.5, 1) infinite !important;
+    }
+
+    .popup-logo-area .a-flipped {
+      color: #d4af37 !important; z-index: 1 !important; 
+      animation: logoAFlippedLoop 8s cubic-bezier(0.25, 1, 0.5, 1) infinite !important;
+    }
+
+    .popup-logo-area .text-wrapper-popup {
+      display: flex !important; flex-direction: column !important;
+      justify-content: center !important; text-align: left !important;
+    }
+
+    .popup-logo-area .logo-text-top {
+      color: #ffffff !important; font-family: 'Orbitron', sans-serif !important;
+      font-size: 15px !important; letter-spacing: 2px !important;
+      white-space: nowrap !important; font-weight: bold !important;
+    }
+
+    .popup-logo-area .logo-text-bottom {
+      font-family: 'Orbitron', sans-serif !important; font-size: 12px !important; 
+      letter-spacing: 5px !important; white-space: nowrap !important;
+      margin-top: 2px !important; font-weight: bold !important; display: block !important;
+      background: linear-gradient(90deg, #ff0055, #00ffcc, #9900ff, #ffcc00, #ff0055);
+      background-size: 300% 100%; -webkit-background-clip: text !important;
+      -webkit-text-fill-color: transparent !important; background-clip: text !important;
+      animation: rainbowMove 4s linear infinite !important;
+    }
+
+    .popup-title {
+      font-family: 'Orbitron', sans-serif; color: #ffffff; font-size: 1.6rem;
+      letter-spacing: 3px; margin-bottom: 25px; text-transform: uppercase;
+      text-shadow: 0 0 10px rgba(102, 252, 241, 0.5);
+    }
+
+    .log-container {
+      text-align: left; background: rgba(5, 6, 8, 0.7);
+      border: 1px solid rgba(102, 252, 241, 0.15); border-radius: 8px;
+      padding: 18px; margin-bottom: 25px; min-height: 190px;
+    }
+
+    .log-line {
+      font-family: 'Courier New', Courier, monospace; font-size: 12px;
+      color: #11ff00; margin-bottom: 10px; display: none;
+      align-items: flex-start; gap: 4px; line-height: 1.4;
+    }
+
+    .gir-icon { display: inline-block; flex-shrink: 0; margin-right: 4px; }
+    .typing-text { display: inline; white-space: pre-wrap; }
+
+    .log-line.active-row .typing-text::after {
+      content: ' []'; color: #66fcf1; animation: blink 0.5s step-end infinite;
+    }
+
+    .log-line.failed { color: #ff0055 !important; }
+    .log-line.failed .typing-text {
+      color: #ff0055 !important; text-shadow: 0 0 8px rgba(255, 0, 85, 0.6) !important;
+    }
+
+    .log-line.success { color: #00ffff !important; }
+    .log-line.success .typing-text {
+      color: #00ffff !important; text-shadow: 0 0 8px rgba(0, 255, 204, 0.4) !important;
+    }
+
+    .btn-action {
+      width: 100%; padding: 14px; border: none; border-radius: 8px;
+      color: #ffffff; font-family: 'Orbitron', sans-serif; font-size: 13px;
+      font-weight: bold; letter-spacing: 2px; cursor: pointer;
+      opacity: 0; pointer-events: none; transform: translateY(10px);
+      transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .btn-action.btn-success {
+      background: linear-gradient(90deg, #ff0055, #00ffcc, #9900ff, #ffcc00, #ff0055);
+      background-size: 300% 100%; animation: rainbowMove 4s linear infinite;
+      box-shadow: 0 4px 15px rgba(255, 0, 85, 0.3);
+    }
+    .btn-action.btn-success:hover { box-shadow: 0 4px 25px rgba(0, 255, 204, 0.6); transform: scale(1.02); }
+
+    .btn-action.btn-failed { background: #ff0055; box-shadow: 0 4px 15px rgba(255, 0, 85, 0.5); }
+    .btn-action.btn-failed:hover { box-shadow: 0 4px 25px rgba(255, 0, 85, 0.8); transform: scale(1.02); }
+
+    .btn-action.show { opacity: 1; pointer-events: auto; transform: translateY(0); }
+
+    @keyframes blink { from, to { color: transparent; } 50% { color: #66fcf1; } }
+    @keyframes rainbowMove { 0% { background-position: 0% 50%; } 100% { background-position: 300% 50%; } }
+    @keyframes logoANormalLoop {
+      0% { opacity: 0; transform: translate(-50%, calc(-54% + 15px)) scale(0.8); }
+      12%, 75% { opacity: 1; transform: translate(-50%, -54%) scale(1); }
+      88%, 100% { opacity: 0; transform: translate(-50%, calc(-54% - 15px)) scale(0.8); }
+    }
+    @keyframes logoAFlippedLoop {
+      0% { opacity: 0; transform: translate(-50%, calc(-44% - 15px)) rotate(180deg) scaleX(-1) scale(0.8); }
+      12%, 75% { opacity: 1; transform: translate(-50%, -44%) rotate(180deg) scaleX(-1) scale(1); }
+      88%, 100% { opacity: 0; transform: translate(-50%, calc(-44% + 15px)) rotate(180deg) scaleX(-1) scale(0.8); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="popup-overlay">
+    <div class="popup-box">
+      <div class="popup-inner">
+        
+        <div class="popup-logo-area">
+          <div class="logo-aa-container">
+            <span class="char-a a-normal">A</span>
+            <span class="char-a a-flipped">A</span>
+          </div>
+          <div class="text-wrapper-popup">
+            <span class="logo-text-top">ALL ANIMATION</span>
+            <span class="logo-text-bottom">STUDIO</span>
+          </div>
+        </div>
+
+        <h3 class="popup-title">Validating access</h3>
+
+        <div class="log-container">
+          <div class="log-line" id="line1"><span class="gir-icon">⚙️</span><span class="typing-text" id="text1"></span></div>
+          <div class="log-line" id="line2"><span class="gir-icon">⚙️</span><span class="typing-text" id="text2"></span></div>
+          <div class="log-line" id="line3"><span class="gir-icon">⚙️</span><span class="typing-text" id="text3"></span></div>
+          <div class="log-line" id="line4"><span class="gir-icon">⚙️</span><span class="typing-text" id="text4"></span></div>
+          <div class="log-line" id="line5"><span class="gir-icon">🚀</span><span class="typing-text" id="text5"></span></div>
+        </div>
+
+        <button class="btn-action" id="btnAction">PROSES...</button>
+
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDMyCH_S50p0G9J_Fdq9MEMnNXXfXCeEcE",
+      authDomain: "all-animation-studio.firebaseapp.com",
+      projectId: "all-animation-studio",
+      storageBucket: "all-animation-studio.firebasestorage.app",
+      messagingSenderId: "225632884885",
+      appId: "1:225632884885:web:3c54667fa18f2078f4a39c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = initializeFirestore(app, {
+      localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+    });
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const emailInput = sessionStorage.getItem("tempEmail") || "";
+      const passwordInput = sessionStorage.getItem("tempPassword") || "";
+      const btnAction = document.getElementById('btnAction');
+
+      if (!emailInput || !passwordInput) {
+        alert("Silahkan isi form login terlebih dahulu!");
+        window.location.href = "Login.html";
+        return;
+      }
+
+      let isGir1Valid = false;
+      let isGir2Valid = false;
+      let isGir3Valid = false;
+      let isGir4Valid = false;
+      let firestoreUsername = "";
+
+      function typeWords(element, text) {
+        return new Promise((resolve) => {
+          let i = 0;
+          function type() {
+            if (i < text.length) {
+              element.textContent += text.charAt(i);
+              i++;
+              setTimeout(type, 60);
+            } else {
+              resolve();
+            }
+          }
+          type();
+        });
+      }
+
+      const l1 = document.getElementById("line1"), t1 = document.getElementById("text1");
+      const l2 = document.getElementById("line2"), t2 = document.getElementById("text2");
+      const l3 = document.getElementById("line3"), t3 = document.getElementById("text3");
+      const l4 = document.getElementById("line4"), t4 = document.getElementById("text4");
+      const l5 = document.getElementById("line5"), t5 = document.getElementById("text5");
+
+      // =========================================================================
+      // GIR 1: DATA FIRESTORE
+      // =========================================================================
+      l1.style.display = "flex"; l1.classList.add("active-row");
+      await typeWords(t1, `==> Memeriksa lisensi data email [${emailInput}]...`);
+      
+      try {
+        const q = query(collection(db, "users"), where("email", "==", emailInput.toLowerCase()));
+        const querySnapshot = await getDocs(q);
+        
+        let exactEmailMatch = false;
+        let statusAktif = false;
+
+        if (!querySnapshot.empty) {
+          querySnapshot.forEach((doc) => {
+            const userData = doc.data();
+            if (userData.email === emailInput) {
+              exactEmailMatch = true;
+              firestoreUsername = userData.username;
+              if (userData.status === "aktif" || userData.status === "Aktif" || userData.status === true) {
+                statusAktif = true;
+              }
+            }
+          });
+        }
+
+        l1.classList.remove("active-row");
+        if (exactEmailMatch && statusAktif) {
+          await typeWords(t1, " Terdaftar & Aktif ✓");
+          isGir1Valid = true;
+        } else if (exactEmailMatch && !statusAktif) {
+          l1.classList.add("failed");
+          await typeWords(t1, " Terdaftar Tapi Tidak Aktif X");
+        } else {
+          l1.classList.add("failed");
+          await typeWords(t1, " Email Tidak Ditemukan / Tidak Aktif X");
+        }
+      } catch (err) {
+        l1.classList.remove("active-row"); l1.classList.add("failed");
+        await typeWords(t1, " Gagal Membaca Database X");
+      }
+      await new Promise(r => setTimeout(r, 400));
+
+      // =========================================================================
+      // GIR 2: FIREBASE AUTH (MEMBERIKAN STATUS PASSWORD KE SESSION STORAGE)
+      // =========================================================================
+      l2.style.display = "flex"; l2.classList.add("active-row");
+      await typeWords(t2, "==> Mencocokkan kualifikasi password user...");
+
+      try {
+        await signInWithEmailAndPassword(auth, emailInput.toLowerCase(), passwordInput);
+        l2.classList.remove("active-row");
+        await typeWords(t2, " Sesuai ✓");
+        isGir2Valid = true;
+        // Penanda kalau password benar:
+        sessionStorage.setItem("passwordStatus", "correct");
+      } catch (authError) {
+        l2.classList.remove("active-row"); l2.classList.add("failed");
+        await typeWords(t2, " Tidak Sesuai X");
+        
+        // Penanda khusus kalau password yang diketik salah/keliru:
+        if (authError.code === "auth/invalid-credential" || authError.code === "auth/wrong-password") {
+          sessionStorage.setItem("passwordStatus", "wrong");
+        } else {
+          // Tetap pertahankan data jika error disebabkan oleh hal lain (seperti user-not-found)
+          sessionStorage.setItem("passwordStatus", "correct");
+        }
+      }
+      await new Promise(r => setTimeout(r, 400));
+
+      // =========================================================================
+      // GIR 3: INTERNET
+      // =========================================================================
+      l3.style.display = "flex"; l3.classList.add("active-row");
+      await typeWords(t3, "==> Menguji kestabilan jaringan koneksi...");
+
+      l3.classList.remove("active-row");
+      if (navigator.onLine) {
+        await typeWords(t3, " Stabil ✓");
+        isGir3Valid = true;
+      } else {
+        l3.classList.add("failed");
+        await typeWords(t3, " RTO / Tidak Stabil X");
+      }
+      await new Promise(r => setTimeout(r, 400));
+
+      // =========================================================================
+      // GIR 4: FINAL RE-CHECK
+      // =========================================================================
+      l4.style.display = "flex"; l4.classList.add("active-row");
+      await typeWords(t4, "==> Meneliti ulang seluruh sinkronisasi data...");
+
+      l4.classList.remove("active-row");
+      if (isGir1Valid && isGir2Valid && isGir3Valid) {
+        await typeWords(t4, " Semua Valid ✓");
+        isGir4Valid = true;
+      } else {
+        l4.classList.add("failed");
+        await typeWords(t4, " Ditemukan Data Cacat X");
+      }
+      await new Promise(r => setTimeout(r, 500));
+
+      // =========================================================================
+      // BARIS 5: OUTPUT & REDIRECT KE LOGIN (DIPERBAIKI LOGIKANYA)
+      // =========================================================================
+      l5.style.display = "flex"; l5.classList.add("active-row");
+      l5.classList.remove("active-row");
+
+      if (isGir4Valid) {
+        l5.classList.add("success");
+        await typeWords(t5, "==> Successful login to your account");
+        
+        sessionStorage.setItem("userEmail", emailInput);
+        sessionStorage.setItem("userUsername", firestoreUsername || "User");
+        sessionStorage.removeItem("tempPassword");
+        sessionStorage.removeItem("passwordStatus");
+
+        setTimeout(() => {
+          btnAction.textContent = "MASUK KE BERANDA";
+          btnAction.className = "btn-action btn-success show";
+          btnAction.onclick = () => { window.location.href = "index.html"; };
+        }, 300);
+
+      } else {
+        l5.classList.add("failed");
+        await typeWords(t5, "==> Failed to log in");
+
+        setTimeout(() => {
+          btnAction.textContent = "KEMBALI KE LOGIN";
+          btnAction.className = "btn-action btn-failed show";
+          btnAction.onclick = () => {
+            // PERBAIKAN UTAMA: Jangan hapus tempPassword di sini! 
+            // Biarkan Login.html yang memutuskan berdasarkan variabel 'passwordStatus'
+            window.location.href = "Login.html";
+          };
+        }, 300);
+      }
+    });
+  </script>
+</body>
+</html>

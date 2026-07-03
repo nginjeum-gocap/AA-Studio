@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil - All Animation Studio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
+    body { background-color: #050608; color: #ffffff; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+    .profile-container { background-color: #12141c; border: 1px solid rgba(102, 252, 241, 0.25); border-radius: 16px; width: 100%; max-width: 450px; padding: 30px; text-align: center; }
+    .profile-header h1 { font-family: 'Orbitron', sans-serif; color: #66fcf1; margin-bottom: 20px; }
+    .avatar-container { width: 120px; height: 120px; margin: 0 auto 15px auto; position: relative; }
+    .avatar-display { width: 100%; height: 100%; border-radius: 50%; border: 3px solid #66fcf1; display: flex; justify-content: center; align-items: center; font-size: 42px; color: #66fcf1; overflow: hidden; background: #1a1e29; }
+    .avatar-display img { width: 100%; height: 100%; object-fit: cover; }
+    .btn-upload-label { display: inline-block; margin-top: 10px; padding: 8px 16px; font-size: 0.85rem; font-weight: bold; color: #66fcf1; background-color: rgba(102, 252, 241, 0.05); border: 1px solid rgba(102, 252, 241, 0.3); border-radius: 20px; cursor: pointer; }
+    #fileInput { display: none; }
+    .status-text { font-size: 0.85rem; color: #a5a6a7; margin-top: 10px; min-height: 20px; }
+    .user-info-box { background-color: #050608; border: 1px solid rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 8px; margin: 25px 0; text-align: left; }
+    .user-info-box label { display: block; font-size: 0.75rem; color: #45a29e; text-transform: uppercase; margin-bottom: 4px; }
+    .btn-back { width: 100%; padding: 12px; background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; border-radius: 8px; font-weight: bold; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+  <div class="profile-container">
+    <div class="profile-header"><h1>PROFIL USER</h1></div>
+
+    <div class="avatar-container">
+      <div class="avatar-display" id="avatarDisplay">-</div>
+    </div>
+
+    <input type="file" id="fileInput" accept="image/*">
+    <label for="fileInput" class="btn-upload-label">📸 Pilih Foto dari Galeri</label>
+    
+    <div class="status-text" id="statusText"></div>
+
+    <div class="user-info-box">
+      <label>Email Terdaftar</label>
+      <p id="userEmail">-</p>
+    </div>
+
+    <button class="btn-back" onclick="window.location.href='../index.html'">← Kembali</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+    // Pakai Realtime Database (Teks murni, 100% masuk kuota gratis tanpa billing)
+    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDMyCH_S50p0G9J_Fdq9MEMnNXXfXCeEcE",
+      authDomain: "all-animation-studio.firebaseapp.com",
+      projectId: "all-animation-studio",
+      databaseURL: "https://all-animation-studio-default-rtdb.firebaseio.com", // Sesuaikan URL DB lu kalau beda
+      appId: "1:225632884885:web:3c54667fa18f2078f4a39c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    const avatarDisplay = document.getElementById('avatarDisplay');
+    const fileInput = document.getElementById('fileInput');
+    const statusText = document.getElementById('statusText');
+    const userEmail = document.getElementById('userEmail');
+
+    // Ambil data foto dari Firebase Realtime Database
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        userEmail.textContent = user.email;
+        
+        const userDbRef = ref(db, 'users/' + user.uid + '/photo');
+        onValue(userDbRef, (snapshot) => {
+          const photoData = snapshot.val();
+          if (photoData) {
+            avatarDisplay.innerHTML = `<img src="${photoData}" alt="Foto">`;
+          } else {
+            avatarDisplay.textContent = user.email.charAt(0).toUpperCase();
+          }
+        });
+      } else {
+        window.location.href = "../Login.html";
+      }
+    });
+
+    // Ubah gambar jadi teks (Base64) lalu tembak ke Realtime Database
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      const user = auth.currentUser;
+      if (!file || !user) return;
+
+      // Kompres/batasi ukuran file teks biar gak kepenuhan (Maks 1MB)
+      if (file.size > 1 * 1024 * 1024) {
+        alert("File kegedean, cok! Pilih yang di bawah 1MB.");
+        return;
+      }
+
+      statusText.textContent = "Sinkronisasi cloud gratis... ⏳";
+      const reader = new FileReader();
+      
+      reader.onloadend = () => {
+        const base64String = reader.result;
+        // Simpan langsung sebagai data string teks di Database
+        set(ref(db, 'users/' + user.uid), {
+          photo: base64String,
+          email: user.email
+        }).then(() => {
+          statusText.textContent = "Foto sinkron & aman dari hapus cache! ✔";
+        }).catch((err) => {
+          statusText.textContent = "Gagal simpan ke cloud.";
+          alert(err.message);
+        });
+      };
+      reader.readAsDataURL(file);
+    });
+  </script>
+</body>
+</html>

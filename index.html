@@ -48,6 +48,53 @@
       height: 100%;
     }
 
+    /* AREA SISI KANAN NAVBAR */
+    .navbar-right {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    /* WIDGET INISIAL/FOTO PROFIL NEON (SISTEM FF OTOMATIS) */
+    .profile-widget {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 2px solid #66fcf1;
+      cursor: pointer;
+      display: none; /* Muncul pas sukses login */
+      box-shadow: 0 0 10px rgba(102, 252, 241, 0.4);
+      transition: all 0.3s ease;
+      background: radial-gradient(circle, #1a1e29 0%, #12141c 100%);
+      
+      /* Supaya Konten Pas di Tengah-tengah Bulatan */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden; /* Biar kalau ada foto Google gak keluar jalur */
+      
+      /* Desain Text Hurufnya */
+      font-family: 'Orbitron', sans-serif;
+      font-size: 16px;
+      font-weight: bold;
+      color: #66fcf1;
+      text-shadow: 0 0 8px #66fcf1;
+      user-select: none;
+    }
+    
+    /* Tambahan style khusus jika isinya elemen gambar (Foto Google) */
+    .profile-widget img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .profile-widget:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 18px #66fcf1;
+      background: radial-gradient(circle, #222838 0%, #12141c 100%);
+    }
+
     /* TOMBOL MENU / GARIS TIGA */
     .menu-toggle {
       display: flex;
@@ -103,110 +150,24 @@
       background: radial-gradient(circle at center, #0d1117 0%, #050608 100%);
     }
     
-    .hero-content { 
-      max-width: 650px;
-    }
-    
-    .hero-content h1 { 
-      font-size: 2.5rem; 
-      margin-bottom: 18px;
-      line-height: 1.3;
-      text-shadow: 0 2px 10px rgba(255, 255, 255, 0.1);
-    }
-    
-    .highlight { 
-      color: #66fcf1; 
-      text-shadow: 0 0 15px #66fcf1, 0 0 30px rgba(102, 252, 241, 0.5);
-    }
-    
-    .hero-content p { 
-      font-size: 1.1rem; 
-      color: #a5a6a7; 
-      line-height: 1.6; 
-    }
+    .hero-content { max-width: 650px; }
+    .hero-content h1 { font-size: 2.5rem; margin-bottom: 18px; line-height: 1.3; text-shadow: 0 2px 10px rgba(255, 255, 255, 0.1); }
+    .highlight { color: #66fcf1; text-shadow: 0 0 15px #66fcf1, 0 0 30px rgba(102, 252, 241, 0.5); }
+    .hero-content p { font-size: 1.1rem; color: #a5a6a7; line-height: 1.6; }
 
     /* CONTAINER ARTIKEL */
-    .content-section {
-      width: 100%;
-      display: flex;
-      justify-content: center;
-      padding: 60px 20px;
-      background-color: #050608;
-    }
-
-    .article-container {
-      width: 100%;
-      max-width: 800px;
-      text-align: left;
-    }
-
-    .section-title {
-      font-size: 1.3rem;
-      color: #66fcf1;
-      margin-bottom: 25px;
-      border-left: 4px solid #66fcf1;
-      padding-left: 12px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    .article-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-    .article-card {
-      background-color: #12141c;
-      border: 1px solid rgba(102, 252, 241, 0.12);
-      border-radius: 16px;
-      padding: 22px;
-      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      cursor: pointer;
-    }
-    .article-card:hover {
-      border-color: #66fcf1;
-      transform: translateY(-3px);
-      box-shadow: 0 8px 25px rgba(102, 252, 241, 0.15);
-    }
-    .article-tag {
-      background-color: rgba(102, 252, 241, 0.1);
-      color: #66fcf1;
-      font-size: 0.7rem;
-      font-weight: bold;
-      padding: 4px 10px;
-      border-radius: 6px;
-      display: inline-block;
-      margin-bottom: 12px;
-      text-transform: uppercase;
-    }
-    
-    .tag-random {
-      background-color: rgba(255, 51, 255, 0.15);
-      color: #ff33ff;
-    }
-    
-    .article-card h2 {
-      font-size: 1.2rem;
-      color: #ffffff;
-      margin-bottom: 8px;
-      line-height: 1.4;
-    }
-    .article-card p {
-      font-size: 0.88rem;
-      color: #c5c6c7;
-      line-height: 1.6;
-      margin-bottom: 16px;
-    }
-    .article-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.75rem;
-      color: #66fcf1;
-      font-weight: bold;
-    }
-    .article-meta {
-      color: #45a29e;
-    }
+    .content-section { display: flex; justify-content: center; padding: 60px 20px; background-color: #050608; }
+    .article-container { width: 100%; max-width: 800px; text-align: left; }
+    .section-title { font-size: 1.3rem; color: #66fcf1; margin-bottom: 25px; border-left: 4px solid #66fcf1; padding-left: 12px; text-transform: uppercase; letter-spacing: 1px; }
+    .article-grid { display: flex; flex-direction: column; gap: 20px; }
+    .article-card { background-color: #12141c; border: 1px solid rgba(102, 252, 241, 0.12); border-radius: 16px; padding: 22px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; }
+    .article-card:hover { border-color: #66fcf1; transform: translateY(-3px); box-shadow: 0 8px 25px rgba(102, 252, 241, 0.15); }
+    .article-tag { background-color: rgba(102, 252, 241, 0.1); color: #66fcf1; font-size: 0.7rem; font-weight: bold; padding: 4px 10px; border-radius: 6px; display: inline-block; margin-bottom: 12px; text-transform: uppercase; }
+    .tag-random { background-color: rgba(255, 51, 255, 0.15); color: #ff33ff; }
+    .article-card h2 { font-size: 1.2rem; color: #ffffff; margin-bottom: 8px; line-height: 1.4; }
+    .article-card p { font-size: 0.88rem; color: #c5c6c7; line-height: 1.6; margin-bottom: 16px; }
+    .article-footer { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: #66fcf1; font-weight: bold; }
+    .article-meta { color: #45a29e; }
 
     @media (max-width: 480px) {
       .hero-content h1 { font-size: 1.9rem; }
@@ -217,7 +178,7 @@
 <body>
 
   <header class="navbar">
-        <div class="logo-area">
+    <div class="logo-area">
       <div class="logo-aa-container">
         <span class="char-a a-normal">A</span>
         <span class="char-a a-flipped">A</span>
@@ -231,11 +192,16 @@
       </div>
     </div>    
 
-    <div class="menu-toggle" id="menuBtn"><span></span><span></span><span></span></div>
+    <div class="navbar-right">
+      <div class="profile-widget" id="userProfile" title="Menu Akun"></div>
+      
+      <div class="menu-toggle" id="menuBtn"><span></span><span></span><span></span></div>
+    </div>
+
     <div class="dropdown-menu" id="dropdownMenu">
       <a onclick="location.reload();">🔄 Refresh</a>
       <a href="Animasi Studio/studio">🎬 Animasi Studio</a>
-      <a href="Login">👤 Login</a> 
+      <a href="Login.html" id="authMenuLink">👤 Login</a> 
     </div>
   </header>
 
@@ -291,15 +257,71 @@
           </div>
         </div>
       </div>
-
     </div>
   </main>
 
-  <script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDMyCH_S50p0G9J_Fdq9MEMnNXXfXCeEcE",
+      authDomain: "all-animation-studio.firebaseapp.com",
+      projectId: "all-animation-studio",
+      storageBucket: "all-animation-studio.firebasestorage.app",
+      messagingSenderId: "225632884885",
+      appId: "1:225632884885:web:3c54667fa18f2078f4a39c",
+      measurementId: "G-T99JHNM9HB"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const userProfileWidget = document.getElementById('userProfile');
+    const authMenuLink = document.getElementById('authMenuLink');
+
+    // DETEKSI LOGIKA AKUN REALTIME ALA GAME FF
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        userProfileWidget.style.display = "flex"; // Munculkan widget bulatannya
+
+        // Taktik FF: Cek apakah akun memiliki foto profil bawaan Google
+        if (user.photoURL) {
+          // Kalau ada (Login via Google), langsung jebret fotonya ke dalam widget
+          userProfileWidget.innerHTML = `<img src="${user.photoURL}" alt="Foto Akun">`;
+        } else {
+          // Kalau gak ada (Akun pendaftaran email biasa), cetak huruf inisial kapital
+          const targetName = user.displayName || user.email || "U";
+          const hurufPertama = targetName.charAt(0).toUpperCase();
+          userProfileWidget.innerHTML = `<span>${hurufPertama}</span>`;
+        }
+        
+        authMenuLink.textContent = "🚪 Logout Akun";
+        authMenuLink.href = "#";
+        
+        authMenuLink.onclick = (e) => {
+          e.preventDefault();
+          signOut(auth).then(() => {
+            alert("Berhasil logout, cok!");
+            location.reload();
+          });
+        };
+      } else {
+        userProfileWidget.style.display = "none";
+        authMenuLink.textContent = "👤 Login";
+        authMenuLink.href = "Login.html";
+        authMenuLink.onclick = null;
+      }
+    });
+
+    userProfileWidget.addEventListener('click', () => {
+      window.location.href = "Profile/Profil.html";
+    });
+
+    // NAVBAR DROPDOWN
     const menuBtn = document.getElementById('menuBtn');
     const dropdownMenu = document.getElementById('dropdownMenu');
 
-    // Toggle Dropdown Menu
     menuBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       dropdownMenu.classList.toggle('active');
