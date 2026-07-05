@@ -7,7 +7,7 @@
   
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
   
-  <link rel="stylesheet" href="css style/nevbar.css">
+  <link rel="stylesheet" href="css_style/nevbar.css">
 
   <style>
     * {
@@ -296,7 +296,7 @@
     <div class="dropdown-menu" id="dropdownMenu">
       <a href="index">🏠 Beranda</a>
       <a href="Animasi Studio/studio">🎬 Animasi Studio</a>
-      <a href="Login.html">🔙 Login</a> 
+      <a href="Login">🔙 Login</a> 
     </div>
   </header>
 
@@ -330,7 +330,7 @@
         <button type="submit" class="btn-submit-rainbow">Register</button>
       </form>
 
-      <a href="Login.html" class="back-login-link">already have an account? login</a>
+      <a href="Login" class="back-login-link">already have an account? login</a>
 
       <div class="divider-container">
         <div class="divider-line"></div>
@@ -440,7 +440,7 @@
         });
 
         alert("Registrasi sukses, cok! Link verifikasi resmi telah dikirim ke email Anda. Silakan verifikasi dahulu sebelum login.");
-        window.location.href = "Login.html";
+        window.location.href = "Login";
 
       } catch (error) {
         console.error("Firebase Auth Error: ", error);
@@ -476,7 +476,7 @@
           alert("Akun Google ini sudah terdaftar sebelumnya, langsung dialihkan!");
         }
 
-        window.location.href = "validation.html";
+        window.location.href = "Login";
 
       } catch (error) {
         console.error("Google Auth Registration Error: ", error);
