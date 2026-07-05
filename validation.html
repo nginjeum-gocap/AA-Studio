@@ -234,7 +234,7 @@
 
       if (!emailInput || (loginMethod === "email_password" && !passwordInput)) {
         alert("Silahkan isi form login terlebih dahulu!");
-        window.location.href = "Login.html";
+        window.location.href = "Login";
         return;
       }
 
@@ -391,7 +391,7 @@
           setTimeout(() => {
             btnAction.textContent = "MASUK KE BERANDA";
             btnAction.className = "btn-action btn-success show";
-            btnAction.onclick = () => { window.location.href = "index.html"; };
+            btnAction.onclick = () => { window.location.href = "index"; };
           }, 300);
         } else {
           l5.classList.add("failed");
@@ -399,7 +399,7 @@
           setTimeout(() => {
             btnAction.textContent = "KEMBALI KE LOGIN";
             btnAction.className = "btn-action btn-failed show";
-            btnAction.onclick = () => { window.location.href = "Login.html"; };
+            btnAction.onclick = () => { window.location.href = "Login"; };
           }, 300);
         }
         return; // Hentikan fungsi agar tidak membaca script email manual di bawah
@@ -511,7 +511,7 @@
         setTimeout(() => {
           btnAction.textContent = "MASUK KE BERANDA";
           btnAction.className = "btn-action btn-success show";
-          btnAction.onclick = () => { window.location.href = "index.html"; };
+          btnAction.onclick = () => { window.location.href = "index"; };
         }, 300);
 
       } else {
@@ -522,7 +522,7 @@
           btnAction.textContent = "KEMBALI KE LOGIN";
           btnAction.className = "btn-action btn-failed show";
           btnAction.onclick = () => {
-            window.location.href = "Login.html";
+            window.location.href = "Login";
           };
         }, 300);
       }
