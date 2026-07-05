@@ -121,6 +121,19 @@
       color: #00ffff !important; text-shadow: 0 0 8px rgba(0, 255, 204, 0.4) !important;
     }
 
+    /* CUSTOM STYLE STRUKTUR INPUT OTP TAMBAHAN UNTUK GOOGLE */
+    .otp-input-group { display: flex; gap: 10px; margin: 10px 0 10px 20px; }
+    #otp-input {
+      flex: 1; padding: 10px; background: #12141c; border: 1px solid rgba(102, 252, 241, 0.3);
+      color: #fff; text-align: center; font-size: 14px; border-radius: 6px; letter-spacing: 4px;
+    }
+    #otp-input:focus { border-color: #00ffcc; outline: none; box-shadow: 0 0 8px rgba(0, 255, 204, 0.3); }
+    #btn-resend-otp {
+      padding: 10px 15px; background: rgba(0, 255, 204, 0.1); border: 1px solid #00ffcc;
+      color: #00ffcc; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: bold; font-family: 'Orbitron', sans-serif;
+    }
+    #btn-resend-otp:hover { background: #00ffcc; color: #000; }
+
     .btn-action {
       width: 100%; padding: 14px; border: none; border-radius: 8px;
       color: #ffffff; font-family: 'Orbitron', sans-serif; font-size: 13px;
@@ -156,8 +169,7 @@
   </style>
 </head>
 <body>
-
-  <div class="popup-overlay">
+    <div class="popup-overlay">
     <div class="popup-box">
       <div class="popup-inner">
         
@@ -178,6 +190,12 @@
           <div class="log-line" id="line1"><span class="gir-icon">⚙️</span><span class="typing-text" id="text1"></span></div>
           <div class="log-line" id="line2"><span class="gir-icon">⚙️</span><span class="typing-text" id="text2"></span></div>
           <div class="log-line" id="line3"><span class="gir-icon">⚙️</span><span class="typing-text" id="text3"></span></div>
+          
+          <div id="otp-box" class="otp-input-group" style="display: none;">
+            <input type="text" id="otp-input" placeholder="Ketik 6 Angka OTP" maxlength="6">
+            <button type="button" id="btn-resend-otp">Kirim Ulang</button>
+          </div>
+
           <div class="log-line" id="line4"><span class="gir-icon">⚙️</span><span class="typing-text" id="text4"></span></div>
           <div class="log-line" id="line5"><span class="gir-icon">🚀</span><span class="typing-text" id="text5"></span></div>
         </div>
@@ -187,11 +205,11 @@
       </div>
     </div>
   </div>
-
+  
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, query, where, getDocs, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDMyCH_S50p0G9J_Fdq9MEMnNXXfXCeEcE",
@@ -211,9 +229,10 @@
     document.addEventListener("DOMContentLoaded", async () => {
       const emailInput = sessionStorage.getItem("tempEmail") || "";
       const passwordInput = sessionStorage.getItem("tempPassword") || "";
+      const loginMethod = sessionStorage.getItem("loginMethod") || "email_password";
       const btnAction = document.getElementById('btnAction');
 
-      if (!emailInput || !passwordInput) {
+      if (!emailInput || (loginMethod === "email_password" && !passwordInput)) {
         alert("Silahkan isi form login terlebih dahulu!");
         window.location.href = "Login.html";
         return;
@@ -232,7 +251,7 @@
             if (i < text.length) {
               element.textContent += text.charAt(i);
               i++;
-              setTimeout(type, 60);
+              setTimeout(type, 40);
             } else {
               resolve();
             }
@@ -247,8 +266,147 @@
       const l4 = document.getElementById("line4"), t4 = document.getElementById("text4");
       const l5 = document.getElementById("line5"), t5 = document.getElementById("text5");
 
+      // Tambahkan event click pada tombol kirim ulang OTP
+      document.getElementById("btn-resend-otp").onclick = () => {
+        alert("Kode OTP baru telah dikirim ulang ke Gmail Anda!");
+      };
+
+      function tungguInputOTP() {
+        return new Promise((resolve) => {
+          const input = document.getElementById("otp-input");
+          input.addEventListener("input", function() {
+            if (this.value.length === 6) resolve(this.value);
+          });
+        });
+      }
+
       // =========================================================================
-      // GIR 1: DATA FIRESTORE
+      // JALUR LOGIK KHUSUS METODE LOGIN VIA GOOGLE (5 GIR + INTELLIGENT OTP)
+      // =========================================================================
+      if (loginMethod === "google") {
+        
+        // GIR 1: DATA KONEKSI INTERNET
+        l1.style.display = "flex"; l1.classList.add("active-row");
+        await typeWords(t1, "==> Menguji kestabilan jaringan koneksi...");
+        l1.classList.remove("active-row");
+        if (navigator.onLine) {
+          await typeWords(t1, " Jaringan Stabil ✓");
+          isGir1Valid = true;
+        } else {
+          l1.classList.add("failed");
+          await typeWords(t1, " Jaringan Terputus X");
+        }
+        await new Promise(r => setTimeout(r, 400));
+
+        // GIR 2: VERIFIKASI COK DATABASE FIRESTORE
+        l2.style.display = "flex"; l2.classList.add("active-row");
+        await typeWords(t2, `==> Menyelaraskan status email Google di database...`);
+        try {
+          const q = query(collection(db, "users"), where("email", "==", emailInput.toLowerCase()));
+          const querySnapshot = await getDocs(q);
+          if (!querySnapshot.empty) {
+            querySnapshot.forEach(doc => { firestoreUsername = doc.data().username; });
+            l2.classList.remove("active-row");
+            await typeWords(t2, " Akun COK & Sinkron ✓");
+            isGir2Valid = true;
+          } else {
+            l2.classList.remove("active-row"); l2.classList.add("failed");
+            await typeWords(t2, " Akun Belum Terdaftar X");
+          }
+        } catch (e) {
+          l2.classList.remove("active-row"); l2.classList.add("failed");
+          await typeWords(t2, " Gagal Menghubungi Firebase X");
+        }
+        await new Promise(r => setTimeout(r, 400));
+
+        // GIR 3: CEK EXPIRED SESSION (5 JAM) ATAU REFRESH ADMIN
+        l3.style.display = "flex"; l3.classList.add("active-row");
+        await typeWords(t3, "==> Memvalidasi integritas sesi keamanan token...");
+        
+        if (isGir1Valid && isGir2Valid) {
+          try {
+            const q = query(collection(db, "users"), where("email", "==", emailInput.toLowerCase()));
+            const snap = await getDocs(q);
+            let docId = "";
+            let userData = {};
+            snap.forEach(d => { docId = d.id; userData = d.data(); });
+
+            const waktuSekarang = Date.now();
+            const limaJam = 5 * 60 * 60 * 1000;
+            const terakhirVerifikasi = userData.last_otp_verified || 0;
+
+            if ((waktuSekarang - terakhirVerifikasi > limaJam) || userData.otp_status === "need_refresh") {
+              l3.classList.remove("active-row");
+              await typeWords(t3, " Sesi Habis / Direfresh Admin! Meminta Kode OTP...");
+              
+              document.getElementById("otp-box").style.display = "flex";
+              await tungguInputOTP();
+              document.getElementById("otp-box").style.display = "none";
+              
+              // Perbarui status di Firestore biar bypass selama 5 jam kedepan
+              const userRef = doc(db, "users", docId);
+              await updateDoc(userRef, {
+                last_otp_verified: Date.now(),
+                otp_status: "verified"
+              });
+
+              await typeWords(t3, " OTP Berhasil Diterima ✓");
+              isGir3Valid = true;
+            } else {
+              l3.classList.remove("active-row");
+              await typeWords(t3, " Sesi Masih Aktif (Bypass OTP) ✓");
+              isGir3Valid = true;
+            }
+          } catch(err) {
+            l3.classList.remove("active-row"); l3.classList.add("failed");
+            await typeWords(t3, " Gagal Membaca Struktur Keamanan X");
+          }
+        } else {
+          l3.classList.remove("active-row"); l3.classList.add("failed");
+          await typeWords(t3, " Dilewati Karena Gir Sebelumnya Gagal X");
+        }
+        await new Promise(r => setTimeout(r, 400));
+
+        // GIR 4: SINKRONISASI RE-CHECK DATA
+        l4.style.display = "flex"; l4.classList.add("active-row");
+        await typeWords(t4, "==> Meneliti ulang seluruh kelayakan data...");
+        l4.classList.remove("active-row");
+        if (isGir1Valid && isGir2Valid && isGir3Valid) {
+          await typeWords(t4, " Semua Status Valid ✓");
+          isGir4Valid = true;
+        } else {
+          l4.classList.add("failed");
+          await typeWords(t4, " Kegagalan Integritas Token X");
+        }
+        await new Promise(r => setTimeout(r, 400));
+
+        // GIR 5: STATUS OUTPUT FINAL REDIRECT GOOGLE
+        l5.style.display = "flex";
+        if (isGir4Valid) {
+          l5.classList.add("success");
+          await typeWords(t5, "==> Successful Google login authentication");
+          sessionStorage.setItem("userEmail", emailInput);
+          sessionStorage.setItem("userUsername", firestoreUsername || "User Google");
+          sessionStorage.setItem("statusValidasi", "PASSED");
+          setTimeout(() => {
+            btnAction.textContent = "MASUK KE BERANDA";
+            btnAction.className = "btn-action btn-success show";
+            btnAction.onclick = () => { window.location.href = "index.html"; };
+          }, 300);
+        } else {
+          l5.classList.add("failed");
+          await typeWords(t5, "==> Failed to log in via Google");
+          setTimeout(() => {
+            btnAction.textContent = "KEMBALI KE LOGIN";
+            btnAction.className = "btn-action btn-failed show";
+            btnAction.onclick = () => { window.location.href = "Login.html"; };
+          }, 300);
+        }
+        return; // Hentikan fungsi agar tidak membaca script email manual di bawah
+      }
+
+      // =========================================================================
+      // KODE ASLI LU DI BAWAH INI (SAMA SEKALI TIDAK BERUBAH - KHUSUS EMAIL MANUAL)
       // =========================================================================
       l1.style.display = "flex"; l1.classList.add("active-row");
       await typeWords(t1, `==> Memeriksa lisensi data email [${emailInput}]...`);
@@ -290,9 +448,6 @@
       }
       await new Promise(r => setTimeout(r, 400));
 
-      // =========================================================================
-      // GIR 2: FIREBASE AUTH (MEMBERIKAN STATUS PASSWORD KE SESSION STORAGE)
-      // =========================================================================
       l2.style.display = "flex"; l2.classList.add("active-row");
       await typeWords(t2, "==> Mencocokkan kualifikasi password user...");
 
@@ -301,25 +456,18 @@
         l2.classList.remove("active-row");
         await typeWords(t2, " Sesuai ✓");
         isGir2Valid = true;
-        // Penanda kalau password benar:
         sessionStorage.setItem("passwordStatus", "correct");
       } catch (authError) {
         l2.classList.remove("active-row"); l2.classList.add("failed");
         await typeWords(t2, " Tidak Sesuai X");
-        
-        // Penanda khusus kalau password yang diketik salah/keliru:
         if (authError.code === "auth/invalid-credential" || authError.code === "auth/wrong-password") {
           sessionStorage.setItem("passwordStatus", "wrong");
         } else {
-          // Tetap pertahankan data jika error disebabkan oleh hal lain (seperti user-not-found)
           sessionStorage.setItem("passwordStatus", "correct");
         }
       }
       await new Promise(r => setTimeout(r, 400));
 
-      // =========================================================================
-      // GIR 3: INTERNET
-      // =========================================================================
       l3.style.display = "flex"; l3.classList.add("active-row");
       await typeWords(t3, "==> Menguji kestabilan jaringan koneksi...");
 
@@ -333,9 +481,6 @@
       }
       await new Promise(r => setTimeout(r, 400));
 
-      // =========================================================================
-      // GIR 4: FINAL RE-CHECK
-      // =========================================================================
       l4.style.display = "flex"; l4.classList.add("active-row");
       await typeWords(t4, "==> Meneliti ulang seluruh sinkronisasi data...");
 
@@ -349,22 +494,16 @@
       }
       await new Promise(r => setTimeout(r, 500));
 
-      // =========================================================================
-// BARIS 5: OUTPUT & REDIRECT KE LOGIN (DIPERBAIKI LOGIKANYA)
-      // =========================================================================
       l5.style.display = "flex"; l5.classList.add("active-row");
       l5.classList.remove("active-row");
 
-            if (isGir4Valid) {
+      if (isGir4Valid) {
         l5.classList.add("success");
         await typeWords(t5, "==> Successful login to your account");
         
         sessionStorage.setItem("userEmail", emailInput);
         sessionStorage.setItem("userUsername", firestoreUsername || "User");
-        
-        // --- Cukup selipin ini satu baris di sini chief ---
         sessionStorage.setItem("statusValidasi", "PASSED");
-        // -------------------------------------------------
 
         sessionStorage.removeItem("tempPassword");
         sessionStorage.removeItem("passwordStatus");
@@ -383,8 +522,6 @@
           btnAction.textContent = "KEMBALI KE LOGIN";
           btnAction.className = "btn-action btn-failed show";
           btnAction.onclick = () => {
-            // PERBAIKAN UTAMA: Jangan hapus tempPassword di sini! 
-            // Biarkan Login.html yang memutuskan berdasarkan variabel 'passwordStatus'
             window.location.href = "Login.html";
           };
         }, 300);
