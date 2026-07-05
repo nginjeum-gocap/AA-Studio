@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kebijakan Privasi - All Animation Studio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #050608;
+      color: #ffffff;
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: radial-gradient(circle at center, #0d1117 0%, #050608 100%);
+    }
+
+    /* BINGKAI UTAMA DENGAN EFEK LAMPU RGB BERPUTAR */
+    .rgb-box {
+      position: relative;
+      max-width: 650px;
+      width: 100%;
+      background: rgba(18, 20, 28, 0.85);
+      border-radius: 16px;
+      padding: 3px; /* Jarak untuk memperlihatkan border RGB */
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+    }
+
+    /* Lapisan animasi RGB di latar belakang border */
+    .rgb-box::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: conic-gradient(
+        #ff0055, #00ffcc, #0055ff, #ffcc00, #9900ff, #ff0055
+      );
+      animation: rotateRGB 6s linear infinite;
+      z-index: 1;
+    }
+
+    /* Konten dalam agar menutupi tengah-tengah background RGB */
+    .container {
+      position: relative;
+      background: #0b0d13;
+      border-radius: 14px;
+      padding: 30px;
+      z-index: 2;
+    }
+
+    /* JUDUL DENGAN TEKS LAMPU RGB BERJALAN */
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.6rem;
+      letter-spacing: 3px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      
+      /* Efek Teks RGB */
+      background: linear-gradient(90deg, #ff0055, #00ffcc, #0055ff, #ffcc00, #ff0055);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: textRGB 4s linear infinite;
+    }
+
+    h2 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.05rem;
+      color: #00ffcc; /* Warna neon cyan solid untuk sub-judul agar seimbang */
+      text-shadow: 0 0 8px rgba(0, 255, 204, 0.3);
+      margin-top: 25px;
+      margin-bottom: 10px;
+      letter-spacing: 1px;
+    }
+
+    p {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.75);
+      line-height: 1.6;
+      margin-bottom: 15px;
+    }
+
+    ul {
+      margin-left: 20px;
+      margin-bottom: 15px;
+      color: rgba(255, 255, 255, 0.75);
+      font-size: 14px;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+
+    /* TOMBOL KEMBALI DENGAN GLOWING EFFECT */
+    .btn-back {
+      display: block;
+      width: 100%;
+      text-align: center;
+      padding: 14px;
+      margin-top: 35px;
+      background: rgba(255, 0, 85, 0.05);
+      border: 1px solid #ff0055;
+      border-radius: 8px;
+      color: #ff0055;
+      text-decoration: none;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 12px;
+      letter-spacing: 2px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      text-shadow: 0 0 5px rgba(255, 0, 85, 0.2);
+    }
+
+    .btn-back:hover {
+      background: #ff0055;
+      color: #ffffff;
+      box-shadow: 0 0 20px rgba(255, 0, 85, 0.6);
+      transform: translateY(-2px);
+    }
+
+    /* CRITICAL ANIMATIONS */
+    @keyframes rotateRGB {
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes textRGB {
+      to {
+        background-position: 200% center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="rgb-box">
+    <div class="container">
+      <h1>PRIVACY POLICY</h1>
+      
+      <p>Selamat datang di <strong>All Animation Studio</strong>. Kami sangat menjaga privasi data Anda. Halaman ini menjelaskan bagaimana aplikasi kami menggunakan data informasi Anda ketika Anda masuk menggunakan Google Authentication.</p>
+      
+      <h2>1. Data yang Kami Akses</h2>
+      <p>Saat Anda masuk menggunakan akun Google, sistem kami hanya meminta izin akses dasar resmi yang disediakan oleh Google API, yaitu:</p>
+      <ul>
+        <li>Alamat email aktif Anda</li>
+        <li>Nama profil publik Anda</li>
+      </ul>
+
+      <h2>2. Penggunaan Data</h2>
+      <p>Kami hanya menggunakan email dan nama Anda untuk memverifikasi apakah akun Anda sudah terdaftar di sistem database studio kami. Kami tidak mengambil password, dokumen pribadi, atau data sensitif Google Anda lainnya.</p>
+
+      <h2>3. Keamanan Informasi</h2>
+      <p>Seluruh proses autentikasi ditangani langsung secara aman lewat sistem enkripsi bawaan Firebase Authentication (Google). Kami menjamin data email Anda tidak akan pernah dijual atau dibagikan ke pihak ketiga mana pun.</p>
+
+      <h2>4. Persetujuan</h2>
+      <p>Dengan menekan tombol masuk menggunakan Google pada aplikasi All Animation Studio, berarti Anda menyetujui poin-poin kebijakan privasi sederhana yang kami buat ini demi kenyamanan bersama.</p>
+
+      <a href="Login.html" class="btn-back">KEMBALI KE LOGIN</a>
+    </div>
+  </div>
+
+</body>
+  </html>
+        
