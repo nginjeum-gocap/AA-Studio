@@ -189,9 +189,9 @@
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-    import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDMyCH_S50p0G9J_Fdq9MEMnNXXfXCeEcE",
@@ -211,10 +211,9 @@
     document.addEventListener("DOMContentLoaded", async () => {
       const emailInput = sessionStorage.getItem("tempEmail") || "";
       const passwordInput = sessionStorage.getItem("tempPassword") || "";
-      const loginMethod = sessionStorage.getItem("loginMethod") || "email_password";
       const btnAction = document.getElementById('btnAction');
 
-      if (!emailInput) {
+      if (!emailInput || !passwordInput) {
         alert("Silahkan isi form login terlebih dahulu!");
         window.location.href = "Login.html";
         return;
@@ -233,7 +232,7 @@
             if (i < text.length) {
               element.textContent += text.charAt(i);
               i++;
-              setTimeout(type, 40);
+              setTimeout(type, 60);
             } else {
               resolve();
             }
@@ -249,7 +248,7 @@
       const l5 = document.getElementById("line5"), t5 = document.getElementById("text5");
 
       // =========================================================================
-      // GIR 1: NGINTIP DATABASE FIRESTORE
+      // GIR 1: DATA FIRESTORE
       // =========================================================================
       l1.style.display = "flex"; l1.classList.add("active-row");
       await typeWords(t1, `==> Memeriksa lisensi data email [${emailInput}]...`);
@@ -264,7 +263,7 @@
         if (!querySnapshot.empty) {
           querySnapshot.forEach((doc) => {
             const userData = doc.data();
-            if (userData.email.toLowerCase() === emailInput.toLowerCase()) {
+            if (userData.email === emailInput) {
               exactEmailMatch = true;
               firestoreUsername = userData.username;
               if (userData.status === "aktif" || userData.status === "Aktif" || userData.status === true) {
@@ -292,39 +291,34 @@
       await new Promise(r => setTimeout(r, 400));
 
       // =========================================================================
-      // GIR 2: VERIFIKASI KE FIREBASE AUTH (DENGAN RECOGNITION METODE GOOGLE)
+      // GIR 2: FIREBASE AUTH (MEMBERIKAN STATUS PASSWORD KE SESSION STORAGE)
       // =========================================================================
       l2.style.display = "flex"; l2.classList.add("active-row");
+      await typeWords(t2, "==> Mencocokkan kualifikasi password user...");
 
-      if (loginMethod === "google") {
-        await typeWords(t2, "==> Memverifikasi Otorisasi Google Akun...");
+      try {
+        await signInWithEmailAndPassword(auth, emailInput.toLowerCase(), passwordInput);
         l2.classList.remove("active-row");
-        // Karena dari Login.html sudah lolos getRedirectResult, bypass langsung sukses
-        await typeWords(t2, " Terverifikasi via Google ✓");
+        await typeWords(t2, " Sesuai ✓");
         isGir2Valid = true;
-      } else {
-        await typeWords(t2, "==> Mencocokkan kualifikasi password user...");
-        try {
-          await signInWithEmailAndPassword(auth, emailInput.toLowerCase(), passwordInput);
-          l2.classList.remove("active-row");
-          await typeWords(t2, " Sesuai ✓");
-          isGir2Valid = true;
+        // Penanda kalau password benar:
+        sessionStorage.setItem("passwordStatus", "correct");
+      } catch (authError) {
+        l2.classList.remove("active-row"); l2.classList.add("failed");
+        await typeWords(t2, " Tidak Sesuai X");
+        
+        // Penanda khusus kalau password yang diketik salah/keliru:
+        if (authError.code === "auth/invalid-credential" || authError.code === "auth/wrong-password") {
+          sessionStorage.setItem("passwordStatus", "wrong");
+        } else {
+          // Tetap pertahankan data jika error disebabkan oleh hal lain (seperti user-not-found)
           sessionStorage.setItem("passwordStatus", "correct");
-        } catch (authError) {
-          l2.classList.remove("active-row"); l2.classList.add("failed");
-          await typeWords(t2, " Tidak Sesuai X");
-          
-          if (authError.code === "auth/invalid-credential" || authError.code === "auth/wrong-password") {
-            sessionStorage.setItem("passwordStatus", "wrong");
-          } else {
-            sessionStorage.setItem("passwordStatus", "correct");
-          }
         }
       }
       await new Promise(r => setTimeout(r, 400));
 
       // =========================================================================
-      // GIR 3: KONEKSI INTERNET
+      // GIR 3: INTERNET
       // =========================================================================
       l3.style.display = "flex"; l3.classList.add("active-row");
       await typeWords(t3, "==> Menguji kestabilan jaringan koneksi...");
@@ -340,7 +334,7 @@
       await new Promise(r => setTimeout(r, 400));
 
       // =========================================================================
-      // GIR 4: VALIDASI AKHIR
+      // GIR 4: FINAL RE-CHECK
       // =========================================================================
       l4.style.display = "flex"; l4.classList.add("active-row");
       await typeWords(t4, "==> Meneliti ulang seluruh sinkronisasi data...");
@@ -356,20 +350,24 @@
       await new Promise(r => setTimeout(r, 500));
 
       // =========================================================================
-      // BARIS 5: FINAL OUTPUT REDIRECT
+// BARIS 5: OUTPUT & REDIRECT KE LOGIN (DIPERBAIKI LOGIKANYA)
       // =========================================================================
       l5.style.display = "flex"; l5.classList.add("active-row");
       l5.classList.remove("active-row");
 
-      if (isGir4Valid) {
+            if (isGir4Valid) {
         l5.classList.add("success");
         await typeWords(t5, "==> Successful login to your account");
         
         sessionStorage.setItem("userEmail", emailInput);
         sessionStorage.setItem("userUsername", firestoreUsername || "User");
+        
+        // --- Cukup selipin ini satu baris di sini chief ---
+        sessionStorage.setItem("statusValidasi", "PASSED");
+        // -------------------------------------------------
+
         sessionStorage.removeItem("tempPassword");
         sessionStorage.removeItem("passwordStatus");
-        sessionStorage.removeItem("loginMethod");
 
         setTimeout(() => {
           btnAction.textContent = "MASUK KE BERANDA";
@@ -385,6 +383,8 @@
           btnAction.textContent = "KEMBALI KE LOGIN";
           btnAction.className = "btn-action btn-failed show";
           btnAction.onclick = () => {
+            // PERBAIKAN UTAMA: Jangan hapus tempPassword di sini! 
+            // Biarkan Login.html yang memutuskan berdasarkan variabel 'passwordStatus'
             window.location.href = "Login.html";
           };
         }, 300);
