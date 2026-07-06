@@ -293,32 +293,68 @@
       const l5 = document.getElementById("line5"), t5 = document.getElementById("text5");
 
       // =========================================================================
-      // TOMBOL KIRIM ULANG OTP (DIPERBAIKI AGAR REAL NGIRIM ULANG DATA BARU)
+      // TOMBOL KIRIM ULANG OTP + FITUR ANTI SPAM COOLDOWN (60 DETIK)
       // =========================================================================
-      document.getElementById("btn-resend-otp").onclick = async () => {
-        otpGeneratedPusat = buatKodeOTP(); // Bikin kode baru lagi
+      let waktuCooldown = 0;
+      let timerCooldown = null;
+      const tombolResend = document.getElementById("btn-resend-otp");
+
+      tombolResend.onclick = async () => {
+        // 1. Cek apakah masih dalam masa tunggu cooldown
+        if (waktuCooldown > 0) {
+          alert(`Sabar Pea! Tunggu ${waktuCooldown} detik lagi sebelum mengirim ulang.`);
+          return;
+        }
+
+        // 2. Jalankan proses kirim OTP baru (menimpa kode lama)
+        otpGeneratedPusat = buatKodeOTP(); 
         alert("Memproses pengiriman ulang kode OTP baru ke Gmail Anda...");
+        
+        // Kunci tampilan tombol selama loading fetch berjalan
+        tombolResend.style.opacity = "0.5";
+        tombolResend.style.cursor = "not-allowed";
+
         await kirimOtpViaRobot(emailInput.toLowerCase(), otpGeneratedPusat);
         alert("Kode OTP baru berhasil dikirim! Silahkan cek inbox/spam.");
+
+        // 3. Mulai hitung mundur cooldown 60 detik
+        waktuCooldown = 60;
+        tombolResend.innerText = `KIRIM ULANG (${waktuCooldown}s)`;
+
+        timerCooldown = setInterval(() => {
+          waktuCooldown--;
+          if (waktuCooldown <= 0) {
+            clearInterval(timerCooldown);
+            tombolResend.innerText = "KIRIM ULANG OTP";
+            tombolResend.style.opacity = "1";
+            tombolResend.style.cursor = "pointer";
+          } else {
+            tombolResend.innerText = `KIRIM ULANG (${waktuCooldown}s)`;
+          }
+        }, 1000);
       };
 
+      // =========================================================================
+      // FUNGSI MENUNGGU INPUTAN KODE OTP DARI USER
+      // =========================================================================
       function tungguInputOTP() {
         return new Promise((resolve) => {
           const input = document.getElementById("otp-input");
           
-          // Bersihkan dulu isian lama kalau ada proses kirim ulang
+          // Bersihkan isian lama di kolom form input
           input.value = ""; 
           
           input.addEventListener("input", function handleInput() {
             if (this.value.length === 6) {
               const nilaiInput = this.value;
+              
               // Validasi kecocokan angka OTP di sini
               if (nilaiInput === otpGeneratedPusat) {
                 input.removeEventListener("input", handleInput);
                 resolve(true);
               } else {
                 alert("Kode OTP salah, Pea! Cek lagi email lu.");
-                this.value = ""; // Reset form biar ngetik ulang
+                this.value = ""; // Reset form biar ngetik ulang dari awal
               }
             }
           });
