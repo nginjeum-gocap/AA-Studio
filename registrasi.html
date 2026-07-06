@@ -353,136 +353,156 @@
 
   <script type="module">
     // 1. KONTROL TAMPILAN NAVBAR DROPDOWN
-    const menuBtn = document.getElementById('menuBtn');
-    const dropdownMenu = document.getElementById('dropdownMenu');
+const menuBtn = document.getElementById('menuBtn');
+const dropdownMenu = document.getElementById('dropdownMenu');
 
-    menuBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      dropdownMenu.classList.toggle('active');
-      menuBtn.classList.toggle('active-btn');
+menuBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  dropdownMenu.classList.toggle('active');
+  menuBtn.classList.toggle('active-btn');
+});
+
+document.addEventListener('click', () => {
+  dropdownMenu.classList.remove('active');
+  menuBtn.classList.remove('active-btn');
+});
+
+// 2. GLOBAL FUNCTION UNTUK MENGINTIP PASSWORD
+window.togglePasswordVisibility = function(inputId, buttonEl) {
+  const inputField = document.getElementById(inputId);
+  if (inputField && inputField.type === "password") {
+    inputField.type = "text";
+    buttonEl.textContent = "🔒";
+  } else if (inputField) {
+    inputField.type = "password";
+    buttonEl.textContent = "👁️";
+  }
+}
+
+// =========================================================================
+// 3. CORE SYSTEM GOOGLE FIREBASE SDK v12.15.0
+// =========================================================================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-analytics.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDMyCH_S50p0G9J_Fdq9MEMnNXXfXCeEcE",
+  authDomain: "all-animation-studio.firebaseapp.com",
+  projectId: "all-animation-studio",
+  storageBucket: "all-animation-studio.firebasestorage.app",
+  messagingSenderId: "225632884885",
+  appId: "1:225632884885:web:3c54667fa18f2078f4a39c",
+  measurementId: "G-T99JHNM9HB"
+};
+
+// Inisialisasi Firebase Core App
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Variabel penentu waktu penanggalan WIB
+const opsiTanggal = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+
+// =========================================================================
+// 4. LOGIKA PROSES PENDAFTARAN MANUAL + ROBOT OTP VIA GOOGLE SCRIPT
+// =========================================================================
+document.getElementById('registerForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const usernameInput = document.getElementById('username').value.trim();
+  const emailInput = document.getElementById('email').value.trim();
+  const passwordInput = document.getElementById('password').value;
+  const confirmPasswordInput = document.getElementById('confirmPassword').value;
+
+  if (passwordInput !== confirmPasswordInput) {
+    alert("Gagal daftar, cok! Password lu kaga cocok.");
+    return;
+  }
+
+  try {
+    // A. Daftarkan dulu akunnya ke sistem Firebase Auth
+    const userCredential = await createUserWithEmailAndPassword(auth, emailInput, passwordInput);
+    const user = userCredential.user;
+
+    // B. Generate 6 Digit Angka OTP Acak
+    const generateOTP = Math.floor(100000 + Math.random() * 900000).toString();
+    const tanggalRegistrasi = new Date().toLocaleDateString('id-ID', opsiTanggal) + ' WIB';
+
+    // C. PANGGIL ROBOT GOOGLE SCRIPT LU UNTUK KIRIM EMAIL
+    // URL ini diambil dari Web App /exec hasil deploy lu tadi
+    const urlRobotGoogle = "https://script.google.com/macros/s/AKfycbz25NYHgHu5jO5u-8Ycf0oz9XR0TUjxFYs3eUpDx3SrMXqRty1ozFfs0T2ocvVh1x-UJw/exec";
+
+    await fetch(urlRobotGoogle, {
+      method: "POST",
+      mode: "no-cors", // Penting biar bypass aturan CORS browser
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email: emailInput,
+        otp: generateOTP
+      })
     });
 
-    document.addEventListener('click', () => {
-      dropdownMenu.classList.remove('active');
-      menuBtn.classList.remove('active-btn');
+    // D. Simpan data user beserta KODE OTP-nya ke Firestore biar bisa divalidasi nanti
+    await setDoc(doc(db, "users", user.uid), {
+      username: usernameInput,
+      email: emailInput,
+      status: "Belum Verifikasi", // Diubah belum verifikasi sebelum isi OTP
+      tanggalDaftar: tanggalRegistrasi,
+      otp_code: generateOTP // Kode OTP disave di sini buat dicocokin nanti
     });
 
-    // 2. GLOBAL FUNCTION UNTUK MENGINTIP PASSWORD
-    window.togglePasswordVisibility = function(inputId, buttonEl) {
-      const inputField = document.getElementById(inputId);
-      if (inputField && inputField.type === "password") {
-        inputField.type = "text";
-        buttonEl.textContent = "🔒";
-      } else if (inputField) {
-        inputField.type = "password";
-        buttonEl.textContent = "👁️";
-      }
+    alert("Registrasi sukses, cok! Kode OTP angka 6 digit telah dikirim langsung oleh robot ke Gmail Anda. Silakan cek kotak masuk/spam.");
+    
+    // Alihkan ke halaman verifikasi OTP buatan lu sendiri (misal: verifikasi.html)
+    window.location.href = "verifikasi"; 
+
+  } catch (error) {
+    console.error("Error Sistem: ", error);
+    alert("Gagal daftar, cok! Error: " + error.message);
+  }
+});
+
+// =========================================================================
+// 5. PENDAFTARAN INSTAN VIA GOOGLE POPUP (TETAP SAMA)
+// =========================================================================
+document.getElementById('btnGoogleRegister').addEventListener('click', async () => {
+  const provider = new GoogleAuthProvider();
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+
+    const userDocRef = doc(db, "users", user.uid);
+    const userDocSnap = await getDoc(userDocRef);
+
+    if (!userDocSnap.exists()) {
+      const tanggalRegistrasi = new Date().toLocaleDateString('id-ID', opsiTanggal) + ' WIB';
+
+      await setDoc(userDocRef, {
+        email: user.email,
+        status: "Aktif",
+        tanggalDaftar: tanggalRegistrasi,
+        loginMethod: "google",
+        otp_status: "need_refresh"
+      });
+      
+      alert("Pendaftaran akun Google sukses, cok! Sesi Anda siap.");
+    } else {
+      alert("Akun Google ini sudah terdaftar sebelumnya, langsung dialihkan!");
     }
 
-    // =========================================================================
-    // 3. CORE SYSTEM GOOGLE FIREBASE SDK v12.15.0
-    // =========================================================================
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-analytics.js";
-    import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+    window.location.href = "Login";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyDMyCH_S50p0G9J_Fdq9MEMnNXXfXCeEcE",
-      authDomain: "all-animation-studio.firebaseapp.com",
-      projectId: "all-animation-studio",
-      storageBucket: "all-animation-studio.firebasestorage.app",
-      messagingSenderId: "225632884885",
-      appId: "1:225632884885:web:3c54667fa18f2078f4a39c",
-      measurementId: "G-T99JHNM9HB"
-    };
-
-    // Inisialisasi Firebase Core App
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    // Variabel penentu waktu penanggalan WIB
-    const opsiTanggal = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-
-    // =========================================================================
-    // 4. LOGIKA PROSES PENDAFTARAN MANUAL (EMAIL & USERNAME)
-    // =========================================================================
-    document.getElementById('registerForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const usernameInput = document.getElementById('username').value.trim();
-      const emailInput = document.getElementById('email').value.trim();
-      const passwordInput = document.getElementById('password').value;
-      const confirmPasswordInput = document.getElementById('confirmPassword').value;
-
-      if (passwordInput !== confirmPasswordInput) {
-        alert("Gagal daftar, cok! Password lu kaga cocok.");
-        return;
-      }
-
-      try {
-        const userCredential = await createUserWithEmailAndPassword(auth, emailInput, passwordInput);
-        const user = userCredential.user;
-
-        await sendEmailVerification(user);
-
-        const tanggalRegistrasi = new Date().toLocaleDateString('id-ID', opsiTanggal) + ' WIB';
-
-        // Disimpan tanpa parameter `loginMethod` agar terpisah di panel admin
-        await setDoc(doc(db, "users", user.uid), {
-          username: usernameInput,
-          email: emailInput,
-          status: "Aktif",
-          tanggalDaftar: tanggalRegistrasi
-        });
-
-        alert("Registrasi sukses, cok! Link verifikasi resmi telah dikirim ke email Anda. Silakan verifikasi dahulu sebelum login.");
-        window.location.href = "Login";
-
-      } catch (error) {
-        console.error("Firebase Auth Error: ", error);
-        alert("Gagal daftar, cok! Error: " + error.message);
-      }
-    });
-
-    // =========================================================================
-    // 5. LOGIKA BARU: PENDAFTARAN INSTAN VIA GOOGLE POPUP
-    // =========================================================================
-    document.getElementById('btnGoogleRegister').addEventListener('click', async () => {
-      const provider = new GoogleAuthProvider();
-      try {
-        const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-
-        const userDocRef = doc(db, "users", user.uid);
-        const userDocSnap = await getDoc(userDocRef);
-
-        if (!userDocSnap.exists()) {
-          const tanggalRegistrasi = new Date().toLocaleDateString('id-ID', opsiTanggal) + ' WIB';
-
-          await setDoc(userDocRef, {
-            email: user.email,
-            status: "Aktif",
-            tanggalDaftar: tanggalRegistrasi,
-            loginMethod: "google",
-            otp_status: "need_refresh"
-          });
-          
-          alert("Pendaftaran akun Google sukses, cok! Sesi Anda siap.");
-        } else {
-          alert("Akun Google ini sudah terdaftar sebelumnya, langsung dialihkan!");
-        }
-
-        window.location.href = "Login";
-
-      } catch (error) {
-        console.error("Google Auth Registration Error: ", error);
-        alert("Gagal daftar via Google, cok! Hubungi admin.");
-      }
-    });
+  } catch (error) {
+    console.error("Google Auth Registration Error: ", error);
+    alert("Gagal daftar via Google, cok! Hubungi admin.");
+  }
+});
   </script>
 </body>
 </html>
