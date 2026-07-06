@@ -205,7 +205,7 @@
       </div>
     </div>
   </div>
-  
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -226,6 +226,31 @@
       localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
     });
 
+    // URL ROBOT APPS SCRIPT LUNYANG TERBARU
+    const urlRobotAppsScript = "https://script.google.com/macros/s/AKfycby8erPgupaT60B0qE8BI0sHEaVverat-g7JpwnXp6CFv3Fj9z8BS8ku4jeGau2NXkeEhA/exec";
+
+    // Fungsi pembantu generate 6 angka acak
+    function buatKodeOTP() {
+      return Math.floor(100000 + Math.random() * 900000).toString();
+    }
+
+    // FUNGSI UTAMA UNTUK MEMANGGIL ROBOT APPS SCRIPT KIRIM EMAIL
+    async function kirimOtpViaRobot(emailTujuan, kodeOtp) {
+      try {
+        await fetch(urlRobotAppsScript, {
+          method: "POST",
+          mode: "no-cors", // Mencegah mentok blokir CORS browser
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: emailTujuan, otp: kodeOtp })
+        });
+        console.log(`[BOT] OTP ${kodeOtp} berhasil dikirim ke ${emailTujuan}`);
+        return true;
+      } catch (err) {
+        console.error("Gagal mengirim ke Apps Script:", err);
+        return false;
+      }
+    }
+
     document.addEventListener("DOMContentLoaded", async () => {
       const emailInput = sessionStorage.getItem("tempEmail") || "";
       const passwordInput = sessionStorage.getItem("tempPassword") || "";
@@ -243,6 +268,7 @@
       let isGir3Valid = false;
       let isGir4Valid = false;
       let firestoreUsername = "";
+      let otpGeneratedPusat = ""; // Menyimpan OTP yang aktif secara global
 
       function typeWords(element, text) {
         return new Promise((resolve) => {
@@ -266,16 +292,35 @@
       const l4 = document.getElementById("line4"), t4 = document.getElementById("text4");
       const l5 = document.getElementById("line5"), t5 = document.getElementById("text5");
 
-      // Tambahkan event click pada tombol kirim ulang OTP
-      document.getElementById("btn-resend-otp").onclick = () => {
-        alert("Kode OTP baru telah dikirim ulang ke Gmail Anda!");
+      // =========================================================================
+      // TOMBOL KIRIM ULANG OTP (DIPERBAIKI AGAR REAL NGIRIM ULANG DATA BARU)
+      // =========================================================================
+      document.getElementById("btn-resend-otp").onclick = async () => {
+        otpGeneratedPusat = buatKodeOTP(); // Bikin kode baru lagi
+        alert("Memproses pengiriman ulang kode OTP baru ke Gmail Anda...");
+        await kirimOtpViaRobot(emailInput.toLowerCase(), otpGeneratedPusat);
+        alert("Kode OTP baru berhasil dikirim! Silahkan cek inbox/spam.");
       };
 
       function tungguInputOTP() {
         return new Promise((resolve) => {
           const input = document.getElementById("otp-input");
-          input.addEventListener("input", function() {
-            if (this.value.length === 6) resolve(this.value);
+          
+          // Bersihkan dulu isian lama kalau ada proses kirim ulang
+          input.value = ""; 
+          
+          input.addEventListener("input", function handleInput() {
+            if (this.value.length === 6) {
+              const nilaiInput = this.value;
+              // Validasi kecocokan angka OTP di sini
+              if (nilaiInput === otpGeneratedPusat) {
+                input.removeEventListener("input", handleInput);
+                resolve(true);
+              } else {
+                alert("Kode OTP salah, Pea! Cek lagi email lu.");
+                this.value = ""; // Reset form biar ngetik ulang
+              }
+            }
           });
         });
       }
@@ -319,7 +364,7 @@
         }
         await new Promise(r => setTimeout(r, 400));
 
-        // GIR 3: CEK EXPIRED SESSION (5 JAM) ATAU REFRESH ADMIN
+        // GIR 3: CEK EXPIRED SESSION (5 JAM) ATAU REFRESH ADMIN + AUTO FETCH OTP
         l3.style.display = "flex"; l3.classList.add("active-row");
         await typeWords(t3, "==> Memvalidasi integritas sesi keamanan token...");
         
@@ -339,6 +384,11 @@
               l3.classList.remove("active-row");
               await typeWords(t3, " Sesi Habis / Direfresh Admin! Meminta Kode OTP...");
               
+              // 1. GENERATE DAN TEMBAK ROBOT APPS SCRIPT SEBELUM MENUNGGU INPUTAN
+              otpGeneratedPusat = buatKodeOTP();
+              await kirimOtpViaRobot(emailInput.toLowerCase(), otpGeneratedPusat);
+
+              // 2. TAMPILKAN LAYAR POPUP INPUTAN OTP NYA
               document.getElementById("otp-box").style.display = "flex";
               await tungguInputOTP();
               document.getElementById("otp-box").style.display = "none";
@@ -402,11 +452,11 @@
             btnAction.onclick = () => { window.location.href = "Login"; };
           }, 300);
         }
-        return; // Hentikan fungsi agar tidak membaca script email manual di bawah
+        return; 
       }
 
       // =========================================================================
-      // KODE ASLI LU DI BAWAH INI (SAMA SEKALI TIDAK BERUBAH - KHUSUS EMAIL MANUAL)
+      // KODE ASLI LU UNTUK EMAIL MANUAL (TIDAK BERUBAH SAMA SEKALI DI BAWAH)
       // =========================================================================
       l1.style.display = "flex"; l1.classList.add("active-row");
       await typeWords(t1, `==> Memeriksa lisensi data email [${emailInput}]...`);
