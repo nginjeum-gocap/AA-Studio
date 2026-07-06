@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verifikasi OTP - All Animation Studio</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css_style/nevbar.css">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #050608;
+      color: #ffffff;
+      overflow-x: hidden;
+    }
+
+    /* NAVBAR */
+    .navbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: rgba(13, 15, 19, 0.75);
+      backdrop-filter: blur(8px);
+      padding: 12px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(0, 243, 255, 0.15);
+      border-bottom: 1px solid rgba(102, 252, 241, 0.25);
+      height: 70px;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      flex-grow: 1;
+      height: 100%;
+    }
+
+    /* HERO WRAPPER */
+    .hero-wrapper {
+      min-height: calc(100vh - 70px); 
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 20px;
+      background: radial-gradient(circle at center, #0d1117 0%, #050608 100%);
+    }
+
+    .otp-box-wrapper {
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+      background: rgba(18, 20, 28, 0.4);
+      border: 1px solid rgba(102, 252, 241, 0.1);
+      padding: 30px 20px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .otp-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 2px;
+      margin-bottom: 15px;
+      color: #ffffff;
+    }
+
+    .otp-subtitle {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 30px;
+      line-height: 1.5;
+    }
+
+    /* INPUT OTP BOX */
+    .otp-input-container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+
+    .otp-field {
+      width: 45px;
+      height: 50px;
+      background: rgba(18, 20, 28, 0.8);
+      border: 1px solid rgba(102, 252, 241, 0.2);
+      border-radius: 8px;
+      color: #00ffcc;
+      font-size: 22px;
+      font-weight: bold;
+      text-align: center;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .otp-field:focus {
+      border-color: #00ffcc;
+      box-shadow: 0 0 12px rgba(0, 255, 204, 0.4);
+    }
+
+    /* BUTTONS */
+    .btn-verify {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 8px;
+      color: #ffffff;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 13px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      cursor: pointer;
+      background: linear-gradient(90deg, #00ffcc, #9900ff, #00ffcc);
+      background-size: 200% 100%;
+      transition: all 0.3s ease;
+    }
+
+    .btn-verify:hover {
+      box-shadow: 0 0 20px rgba(0, 255, 204, 0.4);
+      transform: scale(1.01);
+    }
+
+    .resend-link {
+      display: inline-block;
+      margin-top: 25px;
+      color: rgba(255, 255, 255, 0.4);
+      text-decoration: none;
+      font-size: 11px;
+      letter-spacing: 1px;
+      transition: color 0.3s ease;
+    }
+
+    .resend-link:hover {
+      color: #00ffcc;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="logo-area">
+      <div class="logo-aa-container">
+        <span class="char-a a-normal">A</span>
+        <span class="char-a a-flipped">A</span>
+      </div>
+      
+      <div class="text-wrapper">
+        <span class="logo-text-top">
+          <span class="gold-a">A</span>LL <span class="gold-a">A</span>NIMATION
+        </span>
+        <span class="logo-text-bottom">STUDIO</span>
+      </div>
+    </div>    
+  </header>
+
+  <section class="hero-wrapper">
+    <div class="otp-box-wrapper">
+      <h2 class="otp-title">VERIFIKASI OTP</h2>
+      <p class="otp-subtitle">Masukkan 6 digit angka rahasia yang telah dikirimkan oleh robot ke alamat Gmail lu, Cok.</p>
+
+      <form id="otpForm">
+        <div class="otp-input-container">
+          <input type="text" class="otp-field" maxlength="1" required pattern="[0-9]">
+          <input type="text" class="otp-field" maxlength="1" required pattern="[0-9]">
+          <input type="text" class="otp-field" maxlength="1" required pattern="[0-9]">
+          <input type="text" class="otp-field" maxlength="1" required pattern="[0-9]">
+          <input type="text" class="otp-field" maxlength="1" required pattern="[0-9]">
+          <input type="text" class="otp-field" maxlength="1" required pattern="[0-9]">
+        </div>
+
+        <button type="submit" class="btn-verify">VERIFIKASI AKUN</button>
+      </form>
+
+      <p class="resend-link" id="btnResend">Gak dapet email? Kirim ulang kode</p>
+    </div>
+  </section>
+
+  <script type="module">
+    // =========================================================================
+    // LOGIKA AUTO MOVE CURSOR (Pindah kolom otomatis saat mengetik di HP)
+    // =========================================================================
+    const inputs = document.querySelectorAll('.otp-field');
+    inputs.forEach((input, index) => {
+      input.addEventListener('input', (e) => {
+        if (input.value.length === 1 && index < inputs.length - 1) {
+          inputs[index + 1].focus();
+        }
+      });
+      input.addEventListener('keydown', (e) => {
+        if (e.key === "Backspace" && input.value.length === 0 && index > 0) {
+          inputs[index - 1].focus();
+        }
+      });
+    });
+
+    // =========================================================================
+    // FIREBASE SYSTEM INTEGRATION v12.15.0
+    // =========================================================================
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDMyCH_S50p0G9J_Fdq9MEMnNXXfXCeEcE",
+      authDomain: "all-animation-studio.firebaseapp.com",
+      projectId: "all-animation-studio",
+      storageBucket: "all-animation-studio.firebasestorage.app",
+      messagingSenderId: "225632884885",
+      appId: "1:225632884885:web:3c54667fa18f2078f4a39c",
+      measurementId: "G-T99JHNM9HB"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUserUID = null;
+
+    // Cek status sesi login user yang baru mendaftar
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUserUID = user.uid;
+      } else {
+        alert("Sesi lu abis atau lu gak berhak masuk halaman ini, cok! Balik ke Register.");
+        window.location.href = "registrasi"; // Ubah sesuai nama file register lu
+      }
+    });
+
+    // =========================================================================
+    // PROSES VALIDASI TOMBOL COCOKAN OTP
+    // =========================================================================
+    document.getElementById('otpForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (!currentUserUID) return;
+
+      // Gabungkan keenam kotak input menjadi satu string teks angka
+      let kodeUserKetik = "";
+      inputs.forEach(input => kodeUserKetik += input.value);
+
+      try {
+        const userDocRef = doc(db, "users", currentUserUID);
+        const userDocSnap = await getDoc(userDocRef);
+
+        if (userDocSnap.exists()) {
+          const dataDatabase = userDocSnap.data();
+          const kodeAsliDatabase = dataDatabase.otp_code;
+
+          // COCOKKAN ANGKA
+          if (kodeUserKetik === kodeAsliDatabase) {
+            // Jika sukses, ubah status user di database menjadi Aktif
+            await updateDoc(userDocRef, {
+              status: "Aktif"
+            });
+            
+            alert("Selamat Akun Anda telah Di verifikasi 👌🏻");
+            window.location.href = "Login"; // Alihkan ke halaman login utama lu
+          } else {
+            alert("Maaf Kode Yg anda masukkan Salah Atau Tidak Valid 🙏🏻");
+          }
+        }
+      } catch (error) {
+        console.error("Error validasi:", error);
+        alert("Sistem error, hubungi admin: " + error.message);
+      }
+    });
+  </script>
+</body>
+  </html>
+        
